@@ -3,7 +3,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import Home from "./pages/Home";
+import CategoryPage from "./pages/CategoryPage";
+import AdminLogin from "./pages/AdminLogin";
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -15,7 +18,18 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/aden" element={<CategoryPage category="أخبار عدن" title="أخبار عدن" />} />
+          <Route path="/local" element={<CategoryPage category="أخبار محلية" title="أخبار محلية" />} />
+          <Route path="/reports" element={<CategoryPage category="أخبار وتقارير" title="أخبار وتقارير" />} />
+          <Route path="/press" element={<CategoryPage category="اليمن في الصحافة" title="اليمن في الصحافة" />} />
+          <Route path="/intl" element={<CategoryPage category="شؤون دولية" title="شؤون دولية" />} />
+          <Route path="/opinions" element={<CategoryPage category="آراء واتجاهات" title="آراء واتجاهات" />} />
+          <Route path="/tech" element={<CategoryPage category="علوم وتكنولوجيا" title="علوم وتكنولوجيا" />} />
+          <Route path="/sports" element={<CategoryPage category="رياضة" title="رياضة" />} />
+          <Route path="/video" element={<CategoryPage category="فيديو" title="فيديو الجنوب فويس" />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminPanel />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
