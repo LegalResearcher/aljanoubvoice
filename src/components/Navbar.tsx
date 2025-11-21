@@ -12,9 +12,13 @@ const Navbar = () => {
     { label: "أخبار وتقارير", href: "/reports" },
     { label: "اليمن في الصحافة", href: "/press" },
     { label: "شؤون دولية", href: "/intl" },
+    { label: "اقتصاد", href: "/economy" },
     { label: "آراء واتجاهات", href: "/opinions" },
+    { label: "ثقافة وفن", href: "/culture" },
     { label: "علوم وتكنولوجيا", href: "/tech" },
+    { label: "صحة", href: "/health" },
     { label: "رياضة", href: "/sports" },
+    { label: "منوعات", href: "/misc" },
     { label: "فيديو", href: "/video", highlight: true },
   ];
 
