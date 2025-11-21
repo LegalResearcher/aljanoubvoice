@@ -24,9 +24,13 @@ const App = () => (
           <Route path="/reports" element={<CategoryPage category="أخبار وتقارير" title="أخبار وتقارير" />} />
           <Route path="/press" element={<CategoryPage category="اليمن في الصحافة" title="اليمن في الصحافة" />} />
           <Route path="/intl" element={<CategoryPage category="شؤون دولية" title="شؤون دولية" />} />
+          <Route path="/economy" element={<CategoryPage category="اقتصاد" title="اقتصاد" />} />
           <Route path="/opinions" element={<CategoryPage category="آراء واتجاهات" title="آراء واتجاهات" />} />
+          <Route path="/culture" element={<CategoryPage category="ثقافة وفن" title="ثقافة وفن" />} />
           <Route path="/tech" element={<CategoryPage category="علوم وتكنولوجيا" title="علوم وتكنولوجيا" />} />
+          <Route path="/health" element={<CategoryPage category="صحة" title="صحة" />} />
           <Route path="/sports" element={<CategoryPage category="رياضة" title="رياضة" />} />
+          <Route path="/misc" element={<CategoryPage category="منوعات" title="منوعات" />} />
           <Route path="/video" element={<CategoryPage category="فيديو" title="فيديو الجنوب فويس" />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminPanel />} />
