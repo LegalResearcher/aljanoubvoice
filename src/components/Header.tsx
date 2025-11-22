@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "@/assets/logo.jpg";
+import logo from "@/assets/logo-clean.png";
 
 const Header = () => {
   const currentDate = new Date().toLocaleDateString('ar-YE', {
