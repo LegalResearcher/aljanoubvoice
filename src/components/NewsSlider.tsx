@@ -33,21 +33,21 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
     });
   };
 
-  const lastUpdate = new Date().toLocaleTimeString('ar-YE', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  });
+  const now = new Date();
+  const dayName = now.toLocaleDateString('ar-YE', { weekday: 'long' });
+  const date = now.toLocaleDateString('ar-YE', { year: 'numeric', month: 'long', day: 'numeric' });
+  const time = now.toLocaleTimeString('ar-YE', { hour: '2-digit', minute: '2-digit' });
 
   return (
     <section className="w-full mb-8">
       {/* Last Update Bar */}
       <div className="w-full mb-1">
-        <div className="bg-white border-b border-gray-200 rounded-t-lg py-2 px-4 flex items-center shadow-sm">
-          <span className="text-accentRed font-bold text-sm ml-2">
-            <i className="fas fa-clock"></i> آخر تحديث:
+        <div className="bg-white border-b border-gray-200 rounded-t-lg py-2 px-4 flex items-center justify-center shadow-sm">
+          <span className="text-accentRed font-bold text-xs sm:text-sm ml-2">
+            آخر تحديث:
           </span>
           <span className="text-southBlue font-bold text-xs sm:text-sm">
-            {lastUpdate}
+            {dayName} – {date} – {time}
           </span>
         </div>
       </div>
