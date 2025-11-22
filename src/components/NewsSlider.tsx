@@ -83,13 +83,16 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
         {/* Indicators */}
         <div className="flex justify-center -mt-6 sm:-mt-8 relative z-10">
           <div className="bg-white/95 backdrop-blur-sm rounded-full shadow-lg p-2 flex gap-1.5 border border-gray-200">
-            {slides.slice(0, 10).map((_, index) => (
+            {Array.from({ length: 10 }).map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
+                disabled={index >= totalSlides}
                 className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center transition duration-300 flex-shrink-0 ${
-                  index === currentIndex
+                  index === currentIndex && index < totalSlides
                     ? "bg-accentRed text-white border-2 border-white shadow-md"
+                    : index >= totalSlides
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
                     : "bg-gray-100 text-gray-800 hover:bg-gray-200"
                 }`}
               >
