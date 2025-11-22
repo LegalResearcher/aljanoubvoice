@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo.jpg";
 
 const Header = () => {
   const currentDate = new Date().toLocaleDateString('ar-YE', {
@@ -32,14 +33,13 @@ const Header = () => {
       <header className="bg-white shadow-sm py-6">
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
           {/* Logo */}
-          <div className="text-center md:text-right">
+          <div className="flex items-center justify-center md:justify-start">
             <Link to="/" className="block group">
-              <h1 className="text-4xl md:text-5xl font-black text-southBlue leading-tight">
-                الجنوب <span className="text-accentRed">فويس</span>
-              </h1>
-              <span className="text-sm text-gray-500 font-semibold tracking-wide block mt-1 group-hover:text-southBlue transition">
-                منبر إعلامي جنوبي حُر ومستقل
-              </span>
+              <img 
+                src={logo} 
+                alt="الجنوب فويس" 
+                className="h-16 md:h-20 w-auto object-contain transition-transform group-hover:scale-105"
+              />
             </Link>
           </div>
           
