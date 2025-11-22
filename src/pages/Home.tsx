@@ -24,7 +24,7 @@ const Home = () => {
 
   // Featured posts for slider
   const featuredPosts = posts.filter(post => post.featured).slice(0, 10);
-  const sliderSlides = featuredPosts.length > 0 ? featuredPosts.map(post => ({
+  const sliderSlides = featuredPosts.length >= 10 ? featuredPosts.map(post => ({
     id: post.id,
     title: post.title,
     category: post.category,
@@ -34,16 +34,72 @@ const Home = () => {
     {
       id: 1,
       title: "مراقب إقتصادي: ماهو موقف البنك المركزي في عدن على فرض عقوبات الخزانة الأمريكية",
-      category: "أخبار وتقارير",
+      category: "اقتصاد",
       image: "https://placehold.co/1200x800/1A2B49/FFF?text=البنك+المركزي",
       categoryColor: "bg-accentRed"
     },
     {
       id: 2,
-      title: "اجتماع موسع في العاصمة عدن يناقش خطة الطوارئ لتحسين الخدمات الأساسية في الصيف",
+      title: "اجتماع موسع في العاصمة عدن يناقش خطة الطوارئ لتحسين الخدمات الأساسية",
       category: "أخبار عدن",
-      image: "https://placehold.co/1200x800/2c3e50/FFF?text=تحسين+الخدمات",
+      image: "https://placehold.co/1200x800/2c3e50/FFF?text=عدن",
       categoryColor: "bg-southBlue"
+    },
+    {
+      id: 3,
+      title: "انخفاض أسعار المشتقات النفطية في الأسواق المحلية بعد وصول شحنات جديدة",
+      category: "اقتصاد",
+      image: "https://placehold.co/1200x800/16a34a/FFF?text=النفط",
+      categoryColor: "bg-green-600"
+    },
+    {
+      id: 4,
+      title: "الكشف عن خطة حكومية شاملة لمكافحة الفساد في المؤسسات العامة",
+      category: "أخبار وتقارير",
+      image: "https://placehold.co/1200x800/dc2626/FFF?text=مكافحة+الفساد",
+      categoryColor: "bg-accentRed"
+    },
+    {
+      id: 5,
+      title: "وحدة عدن يتوج بكأس البطولة بعد فوزه في مباراة الديربي الحاسمة",
+      category: "رياضة",
+      image: "https://placehold.co/1200x800/059669/FFF?text=رياضة",
+      categoryColor: "bg-emerald-600"
+    },
+    {
+      id: 6,
+      title: "إطلاق مشروع رقمي ضخم لتحديث منظومة التعليم في المحافظات الجنوبية",
+      category: "علوم وتكنولوجيا",
+      image: "https://placehold.co/1200x800/7c3aed/FFF?text=تعليم+رقمي",
+      categoryColor: "bg-purple-600"
+    },
+    {
+      id: 7,
+      title: "المبعوث الأممي يصل صنعاء في زيارة لبحث تجديد الهدنة وفتح المعابر",
+      category: "شؤون دولية",
+      image: "https://placehold.co/1200x800/ea580c/FFF?text=الأمم+المتحدة",
+      categoryColor: "bg-orange-600"
+    },
+    {
+      id: 8,
+      title: "افتتاح مهرجان عدن الثقافي السنوي بحضور شخصيات فنية وأدبية بارزة",
+      category: "ثقافة وفن",
+      image: "https://placehold.co/1200x800/8b5cf6/FFF?text=ثقافة",
+      categoryColor: "bg-violet-600"
+    },
+    {
+      id: 9,
+      title: "حملة صحية واسعة للتوعية بأهمية التطعيمات في المدارس والمراكز الصحية",
+      category: "صحة",
+      image: "https://placehold.co/1200x800/0891b2/FFF?text=صحة",
+      categoryColor: "bg-cyan-600"
+    },
+    {
+      id: 10,
+      title: "تنظيم معرض فني كبير يستعرض تراث وحضارة الجنوب عبر العصور",
+      category: "منوعات",
+      image: "https://placehold.co/1200x800/ec4899/FFF?text=تراث",
+      categoryColor: "bg-pink-600"
     }
   ];
 
