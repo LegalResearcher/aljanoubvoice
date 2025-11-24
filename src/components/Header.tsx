@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "@/assets/logo-clean.png";
+import logo from "@/assets/logo-extracted.png";
 
 const Header = () => {
   const currentDate = new Date().toLocaleDateString('ar-YE', {
@@ -37,8 +37,8 @@ const Header = () => {
             <Link to="/" className="block group">
               <img 
                 src={logo} 
-                alt="الجنوب فويس" 
-                className="h-16 md:h-20 w-auto object-contain transition-transform group-hover:scale-105"
+                alt="الجنوب فويس - Janoub Voice" 
+                className="h-20 md:h-28 w-auto object-contain transition-transform group-hover:scale-105"
               />
             </Link>
           </div>
