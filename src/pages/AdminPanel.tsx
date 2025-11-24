@@ -12,11 +12,24 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus, LogOut } from "lucide-react";
+import { z } from "zod";
+
+// Validation schema
+const postSchema = z.object({
+  title: z.string().trim().min(1, "العنوان مطلوب").max(200, "العنوان يجب أن يكون أقل من 200 حرف"),
+  content: z.string().trim().min(1, "المحتوى مطلوب").max(50000, "المحتوى يجب أن يكون أقل من 50000 حرف"),
+  excerpt: z.string().trim().max(500, "الملخص يجب أن يكون أقل من 500 حرف").optional().or(z.literal('')),
+  image_url: z.string().url("يجب أن يكون رابط صحيح").optional().or(z.literal('')),
+  category: z.string().min(1, "القسم مطلوب"),
+  featured: z.boolean()
+});
 
 const AdminPanel = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<any>(null);
   
@@ -46,28 +59,41 @@ const AdminPanel = () => {
     "فيديو"
   ];
 
-  // Check auth
+  // Check auth and admin role
+  const checkUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate("/admin/login");
+      return;
+    }
+
+    // Check if user has admin role
+    const { data: isAdminUser, error } = await supabase.rpc('is_admin');
+    
+    if (error || !isAdminUser) {
+      toast.error("ليس لديك صلاحية الوصول للوحة التحكم");
+      await supabase.auth.signOut();
+      navigate("/admin/login");
+      return;
+    }
+
+    setUser(session.user);
+    setIsAdmin(true);
+    setIsCheckingAuth(false);
+  };
+
   useEffect(() => {
     checkUser();
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) {
         navigate("/admin/login");
       } else {
-        setUser(session.user);
+        checkUser();
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
-
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/admin/login");
-    } else {
-      setUser(session.user);
-    }
-  };
 
   // Fetch posts
   const { data: posts = [], isLoading } = useQuery({
@@ -80,7 +106,8 @@ const AdminPanel = () => {
       
       if (error) throw error;
       return data;
-    }
+    },
+    enabled: isAdmin
   });
 
   // Create/Update post mutation
@@ -132,7 +159,16 @@ const AdminPanel = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    saveMutation.mutate(formData);
+    
+    // Validate form data
+    try {
+      postSchema.parse(formData);
+      saveMutation.mutate(formData);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      }
+    }
   };
 
   const handleEdit = (post: any) => {
@@ -171,8 +207,15 @@ const AdminPanel = () => {
     navigate("/admin/login");
   };
 
-  if (!user) {
-    return null;
+  if (isCheckingAuth || !user || !isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-southGray">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-southBlue mb-4"></div>
+          <p className="text-lg text-gray-600">جاري التحقق من الصلاحيات...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
