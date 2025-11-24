@@ -30,15 +30,15 @@ const Header = () => {
       </div>
 
       {/* Main Header */}
-      <header className="bg-white shadow-sm py-6">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <header className="bg-white shadow-sm py-4 md:py-6">
+        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-2 md:gap-4">
           {/* Logo */}
           <div className="flex items-center justify-center md:justify-start">
             <Link to="/" className="block group">
               <img 
                 src={logo} 
                 alt="الجنوب فويس - Janoub Voice" 
-                className="h-20 md:h-28 w-auto object-contain transition-transform group-hover:scale-105"
+                className="h-24 md:h-36 lg:h-40 w-auto object-contain transition-transform group-hover:scale-105 drop-shadow-sm"
               />
             </Link>
           </div>
