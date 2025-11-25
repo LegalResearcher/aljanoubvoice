@@ -55,6 +55,7 @@ const CategoryPage = ({ category, title }: CategoryPageProps) => {
                 image={post.image_url || 'https://placehold.co/400x300/333/fff'}
                 category={post.category}
                 categoryColor="text-accentRed"
+                postId={post.id}
               />
             ))}
           </div>

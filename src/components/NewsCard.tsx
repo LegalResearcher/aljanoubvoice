@@ -9,6 +9,7 @@ interface NewsCardProps {
   categoryColor?: string;
   timeAgo?: string;
   href?: string;
+  postId?: string;
   variant?: "hero" | "sidebar" | "grid" | "list";
 }
 
@@ -19,13 +20,15 @@ const NewsCard = ({
   category,
   categoryColor = "bg-accentRed",
   timeAgo,
-  href = "#",
+  href,
+  postId,
   variant = "grid"
 }: NewsCardProps) => {
+  const linkTo = postId ? `/post/${postId}` : (href || "#");
   if (variant === "hero") {
     return (
       <div className="lg:col-span-8 group cursor-pointer hover-scale">
-        <Link to={href}>
+        <Link to={linkTo}>
           <div className="relative h-[300px] md:h-[450px] rounded-lg overflow-hidden shadow-md">
             <img src={image} alt={title} className="w-full h-full object-cover" />
             <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6 pt-20">
@@ -50,7 +53,7 @@ const NewsCard = ({
   if (variant === "sidebar") {
     return (
       <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex gap-3 hover:shadow-md transition cursor-pointer">
-        <Link to={href} className="flex gap-3 w-full">
+        <Link to={linkTo} className="flex gap-3 w-full">
           <img src={image} className="w-24 h-24 object-cover rounded flex-shrink-0" alt={title} />
           <div className="flex flex-col justify-between flex-1">
             <h4 className="font-bold text-southBlue text-sm leading-relaxed hover:text-accentRed transition">
@@ -70,7 +73,7 @@ const NewsCard = ({
   if (variant === "list") {
     return (
       <article className="bg-white p-4 rounded shadow flex flex-col sm:flex-row gap-4 border border-gray-100">
-        <Link to={href} className="flex flex-col sm:flex-row gap-4 w-full">
+        <Link to={linkTo} className="flex flex-col sm:flex-row gap-4 w-full">
           <img src={image} className="w-full sm:w-48 h-32 object-cover rounded" alt={title} />
           <div className="flex-1">
             <h3 className="text-lg font-bold text-southBlue hover:text-accentRed cursor-pointer mb-2">
@@ -93,7 +96,7 @@ const NewsCard = ({
   // Default: grid variant
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden group">
-      <Link to={href}>
+      <Link to={linkTo}>
         <div className="h-40 overflow-hidden">
           <img 
             src={image} 
