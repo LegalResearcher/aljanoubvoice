@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import CategoryPage from "./pages/CategoryPage";
+import PostDetail from "./pages/PostDetail";
 import AdminLogin from "./pages/AdminLogin";
 import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
@@ -19,6 +20,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/post/:id" element={<PostDetail />} />
           <Route path="/aden" element={<CategoryPage category="أخبار عدن" title="أخبار عدن" />} />
           <Route path="/local" element={<CategoryPage category="أخبار محلية" title="أخبار محلية" />} />
           <Route path="/reports" element={<CategoryPage category="أخبار وتقارير" title="أخبار وتقارير" />} />

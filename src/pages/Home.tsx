@@ -142,6 +142,7 @@ const Home = () => {
                   image={adenPosts[0].image_url || 'https://placehold.co/800x600/1A2B49/FFF?text=عدن'}
                   category="هام"
                   categoryColor="bg-accentRed"
+                  postId={adenPosts[0].id}
                 />
                 <div className="lg:col-span-4 flex flex-col gap-4">
                   {adenPosts.slice(1, 4).map(post => (
@@ -152,6 +153,7 @@ const Home = () => {
                       image={post.image_url || 'https://placehold.co/150x150/2c3e50/fff'}
                       category={post.category}
                       timeAgo="منذ ساعة"
+                      postId={post.id}
                     />
                   ))}
                 </div>
@@ -204,6 +206,7 @@ const Home = () => {
                   image={post.image_url || 'https://placehold.co/400x300/333/fff'}
                   category={post.category}
                   categoryColor="text-accentRed"
+                  postId={post.id}
                 />
               ))
             ) : (
@@ -256,6 +259,7 @@ const Home = () => {
                     excerpt={post.excerpt}
                     image={post.image_url || 'https://placehold.co/300x200/555/fff'}
                     category={post.category}
+                    postId={post.id}
                   />
                 ))
               ) : (
