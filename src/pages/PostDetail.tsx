@@ -27,6 +27,22 @@ const PostDetail = () => {
     }
   });
 
+  // Fetch additional media for this post
+  const { data: additionalMedia = [] } = useQuery({
+    queryKey: ['post-media', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('post_media')
+        .select('*')
+        .eq('post_id', id)
+        .order('created_at', { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id
+  });
+
   // Copy protection feature
   useEffect(() => {
     const handleCopy = (e: ClipboardEvent) => {
@@ -188,6 +204,31 @@ const PostDetail = () => {
               )
             ))}
           </div>
+
+          {/* Additional Media */}
+          {additionalMedia.length > 0 && (
+            <div className="mt-6 space-y-4">
+              {additionalMedia.map((media) => (
+                <div key={media.id} className="rounded-lg overflow-hidden">
+                  {media.media_type === 'video' ? (
+                    <video 
+                      src={media.media_url} 
+                      controls 
+                      className="w-full max-h-[500px] object-contain bg-black"
+                    >
+                      المتصفح لا يدعم تشغيل الفيديو
+                    </video>
+                  ) : (
+                    <img 
+                      src={media.media_url} 
+                      alt="صورة إضافية" 
+                      className="w-full h-auto object-cover"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Share buttons */}
