@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import Navbar from "@/components/Navbar";
 import Ticker from "@/components/Ticker";
 import Footer from "@/components/Footer";
+import RelatedNews from "@/components/RelatedNews";
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -171,10 +172,21 @@ const PostDetail = () => {
         {/* Full content */}
         <div className="bg-white rounded-lg shadow-sm p-6 md:p-8 mb-8">
           <div 
-            className="prose prose-lg max-w-none text-gray-800 leading-loose"
-            style={{ whiteSpace: 'pre-wrap' }}
+            className="prose prose-lg max-w-none text-gray-800"
+            style={{ 
+              whiteSpace: 'pre-wrap',
+              lineHeight: '1.5',
+            }}
           >
-            {post.content}
+            {post.content.split('\n').map((paragraph, index) => (
+              paragraph.trim() ? (
+                <p key={index} className="mb-2">
+                  {paragraph}
+                </p>
+              ) : (
+                <br key={index} />
+              )
+            ))}
           </div>
         </div>
 
@@ -246,6 +258,9 @@ const PostDetail = () => {
           </Link>
         </div>
       </article>
+
+      {/* Related News Section */}
+      <RelatedNews currentPostId={post.id} category={post.category} />
 
       <Footer />
     </div>
