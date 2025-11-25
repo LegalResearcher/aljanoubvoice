@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus, LogOut } from "lucide-react";
+import { Pencil, Trash2, Plus, LogOut, Upload, X } from "lucide-react";
 import { z } from "zod";
 
 // Validation schema
@@ -32,6 +32,9 @@ const AdminPanel = () => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<any>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; url: string; type: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -192,6 +195,7 @@ const AdminPanel = () => {
 
   const resetForm = () => {
     setEditingPost(null);
+    setUploadedFile(null);
     setFormData({
       title: "",
       content: "",
@@ -200,6 +204,63 @@ const AdminPanel = () => {
       image_url: "",
       featured: false,
     });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm'];
+    if (!validTypes.includes(file.type)) {
+      toast.error("يرجى اختيار صورة أو فيديو صالح");
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("حجم الملف يجب أن يكون أقل من 10 ميجابايت");
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('post-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('post-images')
+        .getPublicUrl(filePath);
+
+      setUploadedFile({
+        name: file.name,
+        url: publicUrl,
+        type: file.type.startsWith('video') ? 'video' : 'image'
+      });
+
+      setFormData({ ...formData, image_url: publicUrl });
+      toast.success("تم رفع الملف بنجاح");
+    } catch (error: any) {
+      toast.error(error.message || "فشل رفع الملف");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const removeUploadedFile = () => {
+    setUploadedFile(null);
+    setFormData({ ...formData, image_url: "" });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleLogout = async () => {
@@ -309,15 +370,61 @@ const AdminPanel = () => {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="image_url">رابط الصورة</Label>
-                      <Input
-                        id="image_url"
-                        value={formData.image_url}
-                        onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                        placeholder="https://example.com/image.jpg"
-                        dir="ltr"
-                        className="text-right"
-                      />
+                      <Label htmlFor="image_url">رابط الصورة أو الفيديو</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="image_url"
+                          value={formData.image_url}
+                          onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                          placeholder="https://example.com/image.jpg"
+                          dir="ltr"
+                          className="text-right flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isUploading}
+                          className="whitespace-nowrap"
+                        >
+                          <Upload className="ml-2 h-4 w-4" />
+                          {isUploading ? "جاري الرفع..." : "رفع صورة/فيديو"}
+                        </Button>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*,video/*"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                        />
+                      </div>
+                      {uploadedFile && (
+                        <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              {uploadedFile.type === 'video' ? (
+                                <video src={uploadedFile.url} className="w-16 h-16 object-cover rounded" />
+                              ) : (
+                                <img src={uploadedFile.url} alt="معاينة" className="w-16 h-16 object-cover rounded" />
+                              )}
+                              <div>
+                                <p className="text-sm font-medium text-green-800">
+                                  {uploadedFile.type === 'video' ? '🎥 فيديو' : '📷 صورة'}
+                                </p>
+                                <p className="text-xs text-green-600">{uploadedFile.name}</p>
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={removeUploadedFile}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       <input
