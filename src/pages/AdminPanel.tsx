@@ -35,6 +35,8 @@ const AdminPanel = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<{ name: string; url: string; type: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const additionalMediaInputRef = useRef<HTMLInputElement>(null);
+  const [additionalMedia, setAdditionalMedia] = useState<Array<{ name: string; url: string; type: string }>>([]);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -116,17 +118,44 @@ const AdminPanel = () => {
   // Create/Update post mutation
   const saveMutation = useMutation({
     mutationFn: async (data: any) => {
+      let postId = editingPost?.id;
+      
       if (editingPost) {
         const { error } = await supabase
           .from('posts')
           .update(data)
           .eq('id', editingPost.id);
         if (error) throw error;
+        
+        // Delete old additional media
+        await supabase
+          .from('post_media')
+          .delete()
+          .eq('post_id', editingPost.id);
       } else {
-        const { error } = await supabase
+        const { data: newPost, error } = await supabase
           .from('posts')
-          .insert([data]);
+          .insert([data])
+          .select()
+          .single();
         if (error) throw error;
+        postId = newPost.id;
+      }
+      
+      // Insert additional media
+      if (additionalMedia.length > 0 && postId) {
+        const mediaRecords = additionalMedia.map(media => ({
+          post_id: postId,
+          media_url: media.url,
+          media_type: media.type,
+          file_name: media.name
+        }));
+        
+        const { error: mediaError } = await supabase
+          .from('post_media')
+          .insert(mediaRecords);
+        
+        if (mediaError) throw mediaError;
       }
     },
     onSuccess: () => {
@@ -184,6 +213,23 @@ const AdminPanel = () => {
       image_url: post.image_url || "",
       featured: post.featured || false,
     });
+    
+    // Fetch existing additional media for this post
+    supabase
+      .from('post_media')
+      .select('*')
+      .eq('post_id', post.id)
+      .then(({ data }) => {
+        if (data) {
+          const mediaFiles = data.map(media => ({
+            name: media.file_name || 'ملف',
+            url: media.media_url,
+            type: media.media_type
+          }));
+          setAdditionalMedia(mediaFiles);
+        }
+      });
+    
     setIsDialogOpen(true);
   };
 
@@ -196,6 +242,7 @@ const AdminPanel = () => {
   const resetForm = () => {
     setEditingPost(null);
     setUploadedFile(null);
+    setAdditionalMedia([]);
     setFormData({
       title: "",
       content: "",
@@ -261,6 +308,70 @@ const AdminPanel = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const handleAdditionalMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    const uploadedFiles: Array<{ name: string; url: string; type: string }> = [];
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        // Validate file type
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'video/mp4', 'video/mov', 'video/webm'];
+        if (!validTypes.includes(file.type)) {
+          toast.error(`${file.name}: نوع الملف غير مدعوم`);
+          continue;
+        }
+
+        // Validate file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          toast.error(`${file.name}: حجم الملف يجب أن يكون أقل من 10 ميجابايت`);
+          continue;
+        }
+
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('post-images')
+          .upload(filePath, file);
+
+        if (uploadError) {
+          toast.error(`${file.name}: فشل الرفع`);
+          continue;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('post-images')
+          .getPublicUrl(filePath);
+
+        uploadedFiles.push({
+          name: file.name,
+          url: publicUrl,
+          type: file.type.startsWith('video') ? 'video' : 'image'
+        });
+      }
+
+      setAdditionalMedia([...additionalMedia, ...uploadedFiles]);
+      toast.success(`تم رفع ${uploadedFiles.length} ملف بنجاح`);
+    } catch (error: any) {
+      toast.error(error.message || "فشل رفع الملفات");
+    } finally {
+      setIsUploading(false);
+      if (additionalMediaInputRef.current) {
+        additionalMediaInputRef.current.value = "";
+      }
+    }
+  };
+
+  const removeAdditionalMedia = (index: number) => {
+    setAdditionalMedia(additionalMedia.filter((_, i) => i !== index));
   };
 
   const handleLogout = async () => {
@@ -423,6 +534,56 @@ const AdminPanel = () => {
                               <X className="h-4 w-4" />
                             </Button>
                           </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>رفع وسائط إضافية (صور / فيديوهات)</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => additionalMediaInputRef.current?.click()}
+                        disabled={isUploading}
+                        className="w-full"
+                      >
+                        <Upload className="ml-2 h-4 w-4" />
+                        {isUploading ? "جاري الرفع..." : "رفع وسائط إضافية"}
+                      </Button>
+                      <input
+                        ref={additionalMediaInputRef}
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/mov,video/webm"
+                        onChange={handleAdditionalMediaUpload}
+                        multiple
+                        className="hidden"
+                      />
+                      {additionalMedia.length > 0 && (
+                        <div className="mt-2 space-y-2">
+                          {additionalMedia.map((media, index) => (
+                            <div key={index} className="p-2 bg-blue-50 border border-blue-200 rounded flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                {media.type === 'video' ? (
+                                  <video src={media.url} className="w-12 h-12 object-cover rounded" />
+                                ) : (
+                                  <img src={media.url} alt="معاينة" className="w-12 h-12 object-cover rounded" />
+                                )}
+                                <div>
+                                  <p className="text-xs font-medium text-blue-800">
+                                    {media.type === 'video' ? '🎥 فيديو' : '📷 صورة'}
+                                  </p>
+                                  <p className="text-xs text-blue-600">{media.name}</p>
+                                </div>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeAdditionalMedia(index)}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>

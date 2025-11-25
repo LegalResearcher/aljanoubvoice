@@ -22,9 +22,9 @@ const Home = () => {
     }
   });
 
-  // Featured posts for slider
+  // Featured posts for slider - use featured posts if available, otherwise use fallback
   const featuredPosts = posts.filter(post => post.featured).slice(0, 10);
-  const sliderSlides = featuredPosts.length >= 10 ? featuredPosts.map(post => ({
+  const sliderSlides = featuredPosts.length > 0 ? featuredPosts.map(post => ({
     id: post.id,
     title: post.title,
     category: post.category,
