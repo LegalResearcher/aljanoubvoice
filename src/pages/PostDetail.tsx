@@ -1,8 +1,8 @@
 import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
-import { Facebook, Instagram, Mail, Copy, MessageCircle } from "lucide-react";
+import { Facebook, Mail, Copy, MessageCircle, Clock, Eye } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Navbar from "@/components/Navbar";
@@ -18,9 +18,9 @@ const PostDetail = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('posts')
-        .select('*')
+        .select('*, authors(id, name, image_url, bio)')
         .eq('id', id)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;
@@ -42,6 +42,27 @@ const PostDetail = () => {
     },
     enabled: !!id
   });
+
+  // Increment views on page load
+  useEffect(() => {
+    if (id) {
+      supabase
+        .from('posts')
+        .select('views')
+        .eq('id', id)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            supabase
+              .from('posts')
+              .update({ views: (data.views || 0) + 1 })
+              .eq('id', id)
+              .then(() => {});
+          }
+        });
+    }
+  }, [id]);
+
 
   // Copy protection feature
   useEffect(() => {
@@ -105,6 +126,75 @@ const PostDetail = () => {
     toast.success("تم نسخ رابط الخبر");
   };
 
+  // Video embed helper
+  const getVideoEmbed = (url: string) => {
+    if (!url) return null;
+    
+    // YouTube
+    const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&\s]+)/);
+    if (ytMatch) {
+      return (
+        <iframe 
+          src={`https://www.youtube.com/embed/${ytMatch[1]}`}
+          className="w-full aspect-video rounded-lg"
+          allowFullScreen
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        />
+      );
+    }
+    
+    // Facebook
+    if (url.includes('facebook.com')) {
+      return (
+        <iframe 
+          src={`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`}
+          className="w-full aspect-video rounded-lg"
+          allowFullScreen
+        />
+      );
+    }
+
+    // TikTok
+    if (url.includes('tiktok.com')) {
+      return (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="block p-4 bg-gray-100 rounded-lg text-center hover:bg-gray-200 transition">
+          <i className="fab fa-tiktok text-4xl mb-2"></i>
+          <p className="text-sm">شاهد الفيديو على TikTok</p>
+        </a>
+      );
+    }
+
+    // Instagram
+    if (url.includes('instagram.com')) {
+      return (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="block p-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg text-center text-white hover:opacity-90 transition">
+          <i className="fab fa-instagram text-4xl mb-2"></i>
+          <p className="text-sm">شاهد على Instagram</p>
+        </a>
+      );
+    }
+
+    // X/Twitter
+    if (url.includes('twitter.com') || url.includes('x.com')) {
+      return (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="block p-4 bg-black rounded-lg text-center text-white hover:bg-gray-800 transition">
+          <svg className="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          <p className="text-sm">شاهد على X</p>
+        </a>
+      );
+    }
+    
+    // Generic link
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer" className="block p-4 bg-southBlue rounded-lg text-center text-white hover:bg-southLight transition">
+        <i className="fas fa-external-link-alt text-2xl mb-2"></i>
+        <p className="text-sm">شاهد الفيديو</p>
+      </a>
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-southGray">
@@ -141,6 +231,8 @@ const PostDetail = () => {
     );
   }
 
+  const author = (post as any).authors;
+
   return (
     <div className="min-h-screen bg-southGray">
       <Header />
@@ -148,6 +240,15 @@ const PostDetail = () => {
       <Ticker />
 
       <article className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Source badge */}
+        {post.source && (
+          <div className="mb-2">
+            <span className="text-xs text-gray-500 font-medium">
+              {post.source}
+            </span>
+          </div>
+        )}
+
         {/* Category badge */}
         <div className="mb-4">
           <span className="inline-block bg-southBlue text-white px-4 py-2 rounded text-sm font-bold">
@@ -160,10 +261,38 @@ const PostDetail = () => {
           {post.title}
         </h1>
 
-        {/* Date and time */}
-        <div className="mb-6 text-gray-600 text-sm md:text-base border-r-4 border-accentRed pr-3">
-          {formatDate(post.created_at)}
+        {/* Meta info */}
+        <div className="mb-6 flex flex-wrap items-center gap-4 text-gray-600 text-sm border-r-4 border-accentRed pr-3">
+          <span className="flex items-center gap-1">
+            <Clock className="w-4 h-4" />
+            {formatDate(post.created_at || '')}
+          </span>
+          {post.views !== undefined && (
+            <span className="flex items-center gap-1">
+              <Eye className="w-4 h-4" />
+              {post.views} مشاهدة
+            </span>
+          )}
+          {post.reading_time && (
+            <span>{post.reading_time} دقائق للقراءة</span>
+          )}
         </div>
+
+        {/* Author info for opinions */}
+        {author && post.category === "آراء واتجاهات" && (
+          <div className="mb-6 p-4 bg-white rounded-lg shadow-sm flex items-center gap-4">
+            <img 
+              src={author.image_url || "https://placehold.co/100x100/ccc/333?text=كاتب"} 
+              alt={author.name}
+              className="w-16 h-16 rounded-full object-cover border-2 border-southBlue"
+            />
+            <div>
+              <p className="text-sm text-gray-500">بقلم</p>
+              <h4 className="font-bold text-southBlue text-lg">{author.name}</h4>
+              {author.bio && <p className="text-sm text-gray-600">{author.bio}</p>}
+            </div>
+          </div>
+        )}
 
         {/* Main image */}
         {post.image_url && (
@@ -173,6 +302,13 @@ const PostDetail = () => {
               alt={post.title} 
               className="w-full h-auto object-cover"
             />
+          </div>
+        )}
+
+        {/* External video embed */}
+        {post.external_video_url && (
+          <div className="mb-8">
+            {getVideoEmbed(post.external_video_url)}
           </div>
         )}
 
@@ -191,12 +327,12 @@ const PostDetail = () => {
             className="prose prose-lg max-w-none text-gray-800"
             style={{ 
               whiteSpace: 'pre-wrap',
-              lineHeight: '1.5',
+              lineHeight: '1.8',
             }}
           >
-            {post.content.split('\n').map((paragraph, index) => (
+            {post.content.split('\n').map((paragraph: string, index: number) => (
               paragraph.trim() ? (
-                <p key={index} className="mb-2">
+                <p key={index} className="mb-4">
                   {paragraph}
                 </p>
               ) : (
@@ -207,7 +343,7 @@ const PostDetail = () => {
 
           {/* Additional Media */}
           {additionalMedia.length > 0 && (
-            <div className="mt-6 space-y-4">
+            <div className="mt-8 space-y-4">
               {additionalMedia.map((media) => (
                 <div key={media.id} className="rounded-lg overflow-hidden">
                   {media.media_type === 'video' ? (
@@ -227,6 +363,19 @@ const PostDetail = () => {
                   )}
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Tags */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="mt-6 pt-4 border-t">
+              <div className="flex flex-wrap gap-2">
+                {post.tags.map((tag: string, index: number) => (
+                  <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
         </div>

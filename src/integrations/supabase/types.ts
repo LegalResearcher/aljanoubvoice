@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      authors: {
+        Row: {
+          bio: string | null
+          created_at: string | null
+          id: string
+          image_url: string | null
+          name: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
       post_media: {
         Row: {
           created_at: string
@@ -52,41 +76,91 @@ export type Database = {
       posts: {
         Row: {
           author: string | null
+          author_id: string | null
           category: string
           content: string
           created_at: string | null
           excerpt: string | null
+          expires_at: string | null
+          external_video_url: string | null
           featured: boolean | null
           id: string
           image_url: string | null
+          keywords: string[] | null
+          meta_description: string | null
+          meta_title: string | null
+          reading_time: number | null
+          scheduled_at: string | null
+          slug: string | null
+          source: string | null
+          status: string | null
+          tags: string[] | null
           title: string
           updated_at: string | null
+          views: number | null
+          word_count: number | null
         }
         Insert: {
           author?: string | null
+          author_id?: string | null
           category: string
           content: string
           created_at?: string | null
           excerpt?: string | null
+          expires_at?: string | null
+          external_video_url?: string | null
           featured?: boolean | null
           id?: string
           image_url?: string | null
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          reading_time?: number | null
+          scheduled_at?: string | null
+          slug?: string | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
           title: string
           updated_at?: string | null
+          views?: number | null
+          word_count?: number | null
         }
         Update: {
           author?: string | null
+          author_id?: string | null
           category?: string
           content?: string
           created_at?: string | null
           excerpt?: string | null
+          expires_at?: string | null
+          external_video_url?: string | null
           featured?: boolean | null
           id?: string
           image_url?: string | null
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          reading_time?: number | null
+          scheduled_at?: string | null
+          slug?: string | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
           title?: string
           updated_at?: string | null
+          views?: number | null
+          word_count?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

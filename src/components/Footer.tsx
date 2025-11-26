@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Rss } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -11,15 +12,52 @@ const Footer = () => {
             منبر إعلامي جنوبي حُر ومستقل، ينطلق من العاصمة عدن لينقل الحقيقة كما هي، منحازاً لقضايا المواطن وتطلعات الشارع الجنوبي.
           </p>
           <div className="flex gap-3">
-            <a href="#" className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-blue-600 hover:text-white transition">
+            <a 
+              href="https://www.facebook.com/share/19LJWZ9EWP/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-blue-600 hover:text-white transition"
+            >
               <i className="fab fa-facebook-f"></i>
             </a>
-            <a href="#" className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-blue-400 hover:text-white transition">
-              <i className="fab fa-twitter"></i>
+            <a 
+              href="https://x.com/aljanoubvoice?t=m2LEG-iIS-72vwvbsHkwaw&s=09" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-black hover:text-white transition"
+            >
+              <i className="fab fa-x-twitter"></i>
             </a>
-            <a href="#" className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-red-600 hover:text-white transition">
+            <a 
+              href="https://youtube.com/@aljanoubvoice?si=--HRO1paUZcqN_eT" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-red-600 hover:text-white transition"
+            >
               <i className="fab fa-youtube"></i>
             </a>
+            <a 
+              href="https://t.me/aljanoubvoice" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-blue-500 hover:text-white transition"
+            >
+              <i className="fab fa-telegram-plane"></i>
+            </a>
+            <a 
+              href="https://wa.me/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-green-500 hover:text-white transition"
+            >
+              <i className="fab fa-whatsapp"></i>
+            </a>
+            <Link 
+              to="/feed"
+              className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-orange-500 hover:text-white transition"
+            >
+              <Rss className="w-4 h-4" />
+            </Link>
           </div>
         </div>
 

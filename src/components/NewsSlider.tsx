@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 
 interface Slide {
@@ -56,9 +57,10 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
       <div className="relative group">
         <div className="relative h-[400px] md:h-[550px] lg:h-[650px] rounded-b-lg overflow-hidden shadow-xl">
           {slides.map((slide, index) => (
-            <div
+            <Link
               key={slide.id}
-              className={`slider-item absolute inset-0 cursor-pointer transition duration-500 ${
+              to={`/post/${slide.id}`}
+              className={`slider-item absolute inset-0 cursor-pointer transition duration-500 block ${
                 index === currentIndex ? "active" : ""
               }`}
             >
@@ -76,7 +78,7 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
                   {slide.title}
                 </h3>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
