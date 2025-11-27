@@ -12,8 +12,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus, LogOut, Upload, X, Users, BarChart3, Eye } from "lucide-react";
+import { Pencil, Trash2, Plus, LogOut, Upload, X, Users, BarChart3, Eye, Save, Search, Tag } from "lucide-react";
 import { z } from "zod";
+import { useCallback, useMemo } from "react";
 
 // Validation schema
 const postSchema = z.object({
@@ -50,6 +51,10 @@ const AdminPanel = () => {
   const authorImageInputRef = useRef<HTMLInputElement>(null);
   const [additionalMedia, setAdditionalMedia] = useState<Array<{ name: string; url: string; type: string }>>([]);
   const [activeTab, setActiveTab] = useState("posts");
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
+  const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSEOPreview, setShowSEOPreview] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -183,6 +188,97 @@ const AdminPanel = () => {
       .replace(/[^\u0621-\u064A\u0660-\u0669a-zA-Z0-9-]/g, '')
       .substring(0, 100);
   };
+
+  // Auto-save functionality
+  const autoSaveDraft = useCallback(async () => {
+    if (!autoSaveEnabled || !formData.title || formData.status !== 'draft') return;
+    
+    try {
+      const { wordCount, readingTime } = calculateWordStats(formData.content);
+      const tags = generateTags(formData.title, formData.content);
+      
+      const draftData = {
+        ...formData,
+        word_count: wordCount,
+        reading_time: readingTime,
+        tags,
+        slug: formData.slug || generateSlug(formData.title),
+        meta_title: formData.meta_title || formData.title,
+        meta_description: formData.meta_description || formData.excerpt || formData.content.substring(0, 160),
+        scheduled_at: formData.scheduled_at || null,
+        author_id: formData.author_id || null,
+      };
+
+      if (editingPost) {
+        await supabase
+          .from('posts')
+          .update(draftData)
+          .eq('id', editingPost.id);
+      } else {
+        const { data: newPost } = await supabase
+          .from('posts')
+          .insert([draftData])
+          .select()
+          .single();
+        
+        if (newPost) {
+          setEditingPost(newPost);
+        }
+      }
+      
+      setLastAutoSave(new Date());
+    } catch (error) {
+      console.error('Auto-save error:', error);
+    }
+  }, [formData, editingPost, autoSaveEnabled]);
+
+  // Auto-save every 30 seconds for drafts
+  useEffect(() => {
+    if (!isDialogOpen || formData.status !== 'draft') return;
+    
+    const interval = setInterval(autoSaveDraft, 30000);
+    return () => clearInterval(interval);
+  }, [isDialogOpen, formData.status, autoSaveDraft]);
+
+  // Filter posts by search
+  const filteredPosts = useMemo(() => {
+    if (!searchQuery) return posts;
+    return posts.filter((post: any) => 
+      post.title.includes(searchQuery) || 
+      post.category.includes(searchQuery) ||
+      post.content.includes(searchQuery)
+    );
+  }, [posts, searchQuery]);
+
+  // Calculate tags statistics
+  const tagStats = useMemo(() => {
+    const tagCount: Record<string, number> = {};
+    posts.forEach((post: any) => {
+      if (post.tags) {
+        post.tags.forEach((tag: string) => {
+          tagCount[tag] = (tagCount[tag] || 0) + 1;
+        });
+      }
+    });
+    return Object.entries(tagCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+  }, [posts]);
+
+  // Calculate author performance
+  const authorStats = useMemo(() => {
+    const stats: Record<string, { name: string; posts: number; views: number }> = {};
+    posts.forEach((post: any) => {
+      if (post.author_id && post.authors) {
+        if (!stats[post.author_id]) {
+          stats[post.author_id] = { name: post.authors.name, posts: 0, views: 0 };
+        }
+        stats[post.author_id].posts++;
+        stats[post.author_id].views += post.views || 0;
+      }
+    });
+    return Object.values(stats).sort((a, b) => b.views - a.views);
+  }, [posts]);
 
   // Create/Update post mutation
   const saveMutation = useMutation({
@@ -689,28 +785,34 @@ const AdminPanel = () => {
           <TabsContent value="posts">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>إدارة الأخبار</CardTitle>
-                    <CardDescription>إضافة وتعديل وحذف الأخبار</CardDescription>
-                  </div>
-                  <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                    setIsDialogOpen(open);
-                    if (!open) resetForm();
-                  }}>
-                    <DialogTrigger asChild>
-                      <Button className="bg-southBlue hover:bg-southLight">
-                        <Plus className="ml-2 h-4 w-4" />
-                        إضافة خبر جديد
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>{editingPost ? "تعديل الخبر" : "إضافة خبر جديد"}</DialogTitle>
-                        <DialogDescription>
-                          املأ البيانات التالية لنشر الخبر
-                        </DialogDescription>
-                      </DialogHeader>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>إدارة الأخبار</CardTitle>
+                      <CardDescription>إضافة وتعديل وحذف الأخبار</CardDescription>
+                    </div>
+                    <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                      setIsDialogOpen(open);
+                      if (!open) resetForm();
+                    }}>
+                      <DialogTrigger asChild>
+                        <Button className="bg-southBlue hover:bg-southLight">
+                          <Plus className="ml-2 h-4 w-4" />
+                          إضافة خبر جديد
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>{editingPost ? "تعديل الخبر" : "إضافة خبر جديد"}</DialogTitle>
+                          <DialogDescription>
+                            املأ البيانات التالية لنشر الخبر
+                            {lastAutoSave && formData.status === 'draft' && (
+                              <span className="text-green-600 mr-2">
+                                (حُفظ تلقائياً: {lastAutoSave.toLocaleTimeString('ar-EG')})
+                              </span>
+                            )}
+                          </DialogDescription>
+                        </DialogHeader>
                       <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
@@ -928,7 +1030,52 @@ const AdminPanel = () => {
 
                         {/* SEO Section */}
                         <div className="border-t pt-4 mt-4">
-                          <h4 className="font-bold text-southBlue mb-3">إعدادات SEO</h4>
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-bold text-southBlue">إعدادات SEO</h4>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowSEOPreview(!showSEOPreview)}
+                            >
+                              {showSEOPreview ? "إخفاء المعاينة" : "معاينة SEO"}
+                            </Button>
+                          </div>
+                          
+                          {/* SEO Preview */}
+                          {showSEOPreview && (
+                            <div className="mb-4 p-4 bg-gray-50 rounded-lg border">
+                              <p className="text-xs text-gray-500 mb-2">معاينة نتيجة البحث في Google:</p>
+                              <div className="bg-white p-3 rounded border">
+                                <p className="text-blue-700 text-lg hover:underline cursor-pointer truncate">
+                                  {formData.meta_title || formData.title || "عنوان المقال"}
+                                </p>
+                                <p className="text-green-700 text-sm" dir="ltr">
+                                  aljanoubvoice.com/post/{formData.slug || generateSlug(formData.title) || "slug"}
+                                </p>
+                                <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+                                  {formData.meta_description || formData.excerpt || formData.content.substring(0, 160) || "وصف المقال..."}
+                                </p>
+                              </div>
+                              
+                              <p className="text-xs text-gray-500 mt-4 mb-2">معاينة المشاركة على Facebook:</p>
+                              <div className="bg-white rounded border overflow-hidden">
+                                {formData.image_url && (
+                                  <img src={formData.image_url} alt="معاينة" className="w-full h-40 object-cover" />
+                                )}
+                                <div className="p-3 bg-gray-100">
+                                  <p className="text-xs text-gray-500 uppercase">aljanoubvoice.com</p>
+                                  <p className="font-bold text-gray-900 truncate">
+                                    {formData.meta_title || formData.title || "عنوان المقال"}
+                                  </p>
+                                  <p className="text-sm text-gray-600 line-clamp-2">
+                                    {formData.meta_description || formData.excerpt || "وصف المقال..."}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
                           <div className="space-y-3">
                             <div className="space-y-2">
                               <Label htmlFor="meta_title">عنوان SEO (يُولّد تلقائياً)</Label>
@@ -938,6 +1085,7 @@ const AdminPanel = () => {
                                 onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
                                 placeholder={formData.title || "سيُؤخذ من العنوان"}
                               />
+                              <p className="text-xs text-gray-500">{(formData.meta_title || formData.title || "").length}/60 حرف</p>
                             </div>
                             <div className="space-y-2">
                               <Label htmlFor="meta_description">وصف SEO (يُولّد تلقائياً)</Label>
@@ -948,6 +1096,7 @@ const AdminPanel = () => {
                                 placeholder={formData.excerpt || "سيُؤخذ من الملخص"}
                                 rows={2}
                               />
+                              <p className="text-xs text-gray-500">{(formData.meta_description || formData.excerpt || "").length}/160 حرف</p>
                             </div>
                             <div className="space-y-2">
                               <Label htmlFor="slug">الرابط الثابت Slug (يُولّد تلقائياً)</Label>
@@ -982,6 +1131,17 @@ const AdminPanel = () => {
                       </form>
                     </DialogContent>
                   </Dialog>
+                  </div>
+                  {/* Search Field */}
+                  <div className="relative">
+                    <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      placeholder="بحث في الأخبار..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pr-10"
+                    />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -989,9 +1149,9 @@ const AdminPanel = () => {
                   <div className="text-center py-8">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-southBlue"></div>
                   </div>
-                ) : posts.length === 0 ? (
+                ) : filteredPosts.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
-                    لا توجد أخبار بعد. ابدأ بإضافة خبر جديد!
+                    {searchQuery ? "لا توجد نتائج للبحث" : "لا توجد أخبار بعد. ابدأ بإضافة خبر جديد!"}
                   </div>
                 ) : (
                   <Table>
@@ -1007,7 +1167,7 @@ const AdminPanel = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {posts.map((post: any) => (
+                      {filteredPosts.map((post: any) => (
                         <TableRow key={post.id}>
                           <TableCell className="font-medium max-w-xs truncate">{post.title}</TableCell>
                           <TableCell>{post.category}</TableCell>
@@ -1161,7 +1321,7 @@ const AdminPanel = () => {
 
           {/* Stats Tab */}
           <TabsContent value="stats">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle>توزيع الأخبار حسب الأقسام</CardTitle>
@@ -1205,6 +1365,67 @@ const AdminPanel = () => {
                         </div>
                       ))}
                   </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Tag className="h-5 w-5" />
+                    أكثر الوسوم استخدامًا
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {tagStats.length > 0 ? (
+                      tagStats.map(([tag, count]) => (
+                        <span 
+                          key={tag} 
+                          className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm flex items-center gap-1"
+                        >
+                          #{tag}
+                          <span className="bg-southBlue text-white text-xs px-1.5 rounded-full">{count}</span>
+                        </span>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 text-sm">لا توجد وسوم بعد</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="md:col-span-2 lg:col-span-3">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    أداء الكتّاب
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {authorStats.length > 0 ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>الكاتب</TableHead>
+                          <TableHead>عدد المقالات</TableHead>
+                          <TableHead>إجمالي المشاهدات</TableHead>
+                          <TableHead>متوسط المشاهدات</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {authorStats.map((author) => (
+                          <TableRow key={author.name}>
+                            <TableCell className="font-medium">{author.name}</TableCell>
+                            <TableCell>{author.posts}</TableCell>
+                            <TableCell>{author.views.toLocaleString()}</TableCell>
+                            <TableCell>{Math.round(author.views / author.posts).toLocaleString()}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <p className="text-gray-500 text-center py-4">لا توجد بيانات للكتّاب</p>
+                  )}
                 </CardContent>
               </Card>
             </div>
