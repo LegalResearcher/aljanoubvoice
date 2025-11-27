@@ -66,8 +66,8 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
             <Link
               key={slide.id}
               to={`/post/${slide.id}`}
-              className={`slider-item absolute inset-0 cursor-pointer transition duration-500 block ${
-                index === currentIndex ? "active" : ""
+              className={`slider-item absolute inset-0 cursor-pointer transition-opacity duration-500 ${
+                index === currentIndex ? "active opacity-100 z-10" : "opacity-0 z-0"
               }`}
             >
               <img
