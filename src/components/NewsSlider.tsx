@@ -89,23 +89,25 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
         </div>
 
         {/* Indicators */}
-        <div className="w-full flex justify-center gap-3 py-4">
-          {Array.from({ length: 10 }).map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              disabled={index >= totalSlides}
-              className={`w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
-                index === currentIndex && index < totalSlides
-                  ? "bg-southBlue text-white shadow-md scale-110"
-                  : index >= totalSlides
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-gray-100 text-southBlue hover:bg-southBlue/10 hover:scale-105"
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
+        <div className="w-full py-4">
+          <div className="flex justify-center items-center mx-auto" style={{ gap: '12px' }}>
+            {Array.from({ length: 10 }).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                disabled={index >= totalSlides}
+                className={`w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center transition-all duration-300 ${
+                  index === currentIndex && index < totalSlides
+                    ? "bg-southBlue text-white shadow-md scale-110"
+                    : index >= totalSlides
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-gray-100 text-southBlue hover:bg-southBlue/10 hover:scale-105"
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Navigation Arrows */}
