@@ -24,30 +24,16 @@ const Home = () => {
     }
   });
 
-  // Featured posts for slider
-  const featuredPosts = posts.filter(post => post.featured).slice(0, 10);
-  const sliderSlides = featuredPosts.length > 0 ? featuredPosts.map(post => ({
+  // Featured posts for slider - use featured posts, or latest 10 posts if none featured
+  const featuredPosts = posts.filter(post => post.featured);
+  const sliderPosts = featuredPosts.length > 0 ? featuredPosts.slice(0, 10) : posts.slice(0, 10);
+  const sliderSlides = sliderPosts.map(post => ({
     id: post.id,
     title: post.title,
     category: post.category,
-    image: post.image_url || 'https://placehold.co/1200x800/1A2B49/FFF?text=' + post.category,
+    image: post.image_url || 'https://placehold.co/1200x800/1A2B49/FFF?text=' + encodeURIComponent(post.category),
     categoryColor: getCategoryColor(post.category)
-  })) : [
-    {
-      id: "1",
-      title: "مراقب إقتصادي: ماهو موقف البنك المركزي في عدن على فرض عقوبات الخزانة الأمريكية",
-      category: "اقتصاد",
-      image: "https://placehold.co/1200x800/1A2B49/FFF?text=البنك+المركزي",
-      categoryColor: "bg-accentRed"
-    },
-    {
-      id: "2",
-      title: "اجتماع موسع في العاصمة عدن يناقش خطة الطوارئ لتحسين الخدمات الأساسية",
-      category: "أخبار عدن",
-      image: "https://placehold.co/1200x800/2c3e50/FFF?text=عدن",
-      categoryColor: "bg-southBlue"
-    }
-  ];
+  }));
 
   // Posts by category with correct limits
   const adenPosts = posts.filter(post => post.category === "أخبار عدن").slice(0, 5);
