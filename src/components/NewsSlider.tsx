@@ -89,19 +89,19 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
         </div>
 
         {/* Indicators */}
-        <div className="flex justify-center mt-4 relative z-10">
-          <div className="bg-white/95 backdrop-blur-sm rounded-full shadow-lg p-2 flex gap-1.5 border border-gray-200">
+        <div className="flex justify-center mt-6 relative z-10">
+          <div className="bg-southBlue/90 backdrop-blur-md rounded-lg shadow-2xl px-4 py-3 flex gap-2 border border-white/20">
             {Array.from({ length: 10 }).map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
                 disabled={index >= totalSlides}
-                className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center transition duration-300 flex-shrink-0 ${
+                className={`w-8 h-8 rounded-lg text-sm font-bold flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
                   index === currentIndex && index < totalSlides
-                    ? "bg-accentRed text-white border-2 border-white shadow-md"
+                    ? "bg-white text-southBlue scale-110 shadow-lg ring-2 ring-white/50"
                     : index >= totalSlides
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-                    : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                    ? "bg-white/10 text-white/30 cursor-not-allowed"
+                    : "bg-white/20 text-white hover:bg-white/40 hover:scale-105"
                 }`}
               >
                 {index + 1}
