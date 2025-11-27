@@ -89,7 +89,7 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
         </div>
 
         {/* Indicators */}
-        <div className="w-full mt-0 relative z-10">
+        <div className="w-screen relative z-10 -mx-[calc((100vw-100%)/2)]">
           <div className="w-full bg-gradient-to-r from-southBlue via-southBlue/95 to-southBlue backdrop-blur-xl shadow-[0_6px_24px_rgba(0,0,0,0.25)] px-4 py-2.5 flex justify-center gap-1.5 border-t border-white/10">
             {Array.from({ length: 10 }).map((_, index) => (
               <button
