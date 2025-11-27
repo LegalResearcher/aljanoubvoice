@@ -89,24 +89,21 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
         </div>
 
         {/* Indicators */}
-        <div className="flex justify-center mt-6 relative z-10">
-          <div className="bg-gradient-to-r from-southBlue via-southBlue/95 to-southBlue backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] px-5 py-3.5 flex gap-3 border border-white/10">
+        <div className="flex justify-center mt-5 relative z-10">
+          <div className="bg-gradient-to-r from-southBlue via-southBlue/95 to-southBlue backdrop-blur-xl rounded-xl shadow-[0_6px_24px_rgba(0,0,0,0.25)] px-3 py-2 flex gap-1.5 border border-white/10">
             {Array.from({ length: 10 }).map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
                 disabled={index >= totalSlides}
-                className={`relative w-9 h-9 rounded-xl text-sm font-bold flex items-center justify-center transition-all duration-300 ease-out flex-shrink-0 ${
+                className={`relative w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center transition-all duration-300 ease-out flex-shrink-0 ${
                   index === currentIndex && index < totalSlides
-                    ? "bg-white text-southBlue shadow-[0_4px_20px_rgba(255,255,255,0.4)] scale-110 ring-2 ring-white/30"
+                    ? "bg-white text-southBlue shadow-[0_2px_12px_rgba(255,255,255,0.35)] scale-110 ring-1 ring-white/30"
                     : index >= totalSlides
                     ? "bg-white/5 text-white/20 cursor-not-allowed"
-                    : "bg-white/15 text-white/90 hover:bg-white/30 hover:scale-105 hover:shadow-[0_2px_12px_rgba(255,255,255,0.2)] active:scale-95"
+                    : "bg-white/15 text-white/90 hover:bg-white/30 hover:scale-105 active:scale-95"
                 }`}
               >
-                {index === currentIndex && index < totalSlides && (
-                  <span className="absolute inset-0 rounded-xl bg-white/20 animate-pulse" />
-                )}
                 <span className="relative z-10">{index + 1}</span>
               </button>
             ))}
