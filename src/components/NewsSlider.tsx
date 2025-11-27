@@ -14,17 +14,18 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const totalSlides = slides.length;
 
-  // Return null if no slides
-  if (totalSlides === 0) {
-    return null;
-  }
-
   useEffect(() => {
+    if (totalSlides === 0) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % totalSlides);
     }, 5000);
     return () => clearInterval(interval);
   }, [totalSlides]);
+
+  // Return null if no slides (after hooks)
+  if (totalSlides === 0) {
+    return null;
+  }
 
   const goToSlide = (index: number) => {
     setCurrentIndex(index);
