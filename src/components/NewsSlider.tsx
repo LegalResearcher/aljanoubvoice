@@ -89,7 +89,7 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
         </div>
 
         {/* Indicators */}
-        <div className="flex justify-center -mt-6 sm:-mt-8 relative z-10">
+        <div className="flex justify-center mt-4 relative z-10">
           <div className="bg-white/95 backdrop-blur-sm rounded-full shadow-lg p-2 flex gap-1.5 border border-gray-200">
             {Array.from({ length: 10 }).map((_, index) => (
               <button
