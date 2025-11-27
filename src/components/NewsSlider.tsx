@@ -14,6 +14,11 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const totalSlides = slides.length;
 
+  // Return null if no slides
+  if (totalSlides === 0) {
+    return null;
+  }
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % totalSlides);
