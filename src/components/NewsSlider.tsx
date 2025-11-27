@@ -89,25 +89,23 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
         </div>
 
         {/* Indicators */}
-        <div className="w-screen relative z-10 -mx-[calc((100vw-100%)/2)]">
-          <div className="w-full bg-gradient-to-r from-southBlue via-southBlue/95 to-southBlue backdrop-blur-xl shadow-[0_6px_24px_rgba(0,0,0,0.25)] px-4 py-2.5 flex justify-center gap-1.5 border-t border-white/10">
-            {Array.from({ length: 10 }).map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                disabled={index >= totalSlides}
-                className={`relative w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center transition-all duration-300 ease-out flex-shrink-0 ${
-                  index === currentIndex && index < totalSlides
-                    ? "bg-white text-southBlue shadow-[0_2px_12px_rgba(255,255,255,0.35)] scale-110 ring-1 ring-white/30"
-                    : index >= totalSlides
-                    ? "bg-white/5 text-white/20 cursor-not-allowed"
-                    : "bg-white/15 text-white/90 hover:bg-white/30 hover:scale-105 active:scale-95"
-                }`}
-              >
-                <span className="relative z-10">{index + 1}</span>
-              </button>
-            ))}
-          </div>
+        <div className="w-full flex justify-center gap-3 py-4">
+          {Array.from({ length: 10 }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              disabled={index >= totalSlides}
+              className={`w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
+                index === currentIndex && index < totalSlides
+                  ? "bg-southBlue text-white shadow-md scale-110"
+                  : index >= totalSlides
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-gray-100 text-southBlue hover:bg-southBlue/10 hover:scale-105"
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
         </div>
 
         {/* Navigation Arrows */}
