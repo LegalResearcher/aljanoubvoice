@@ -61,7 +61,7 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
 
       {/* Slider Container */}
       <div className="relative group">
-        <div className="relative h-[400px] md:h-[550px] lg:h-[650px] rounded-b-lg overflow-hidden shadow-xl">
+        <div className="relative h-[400px] md:h-[550px] lg:h-[650px] overflow-hidden shadow-xl">
           {slides.map((slide, index) => (
             <Link
               key={slide.id}
