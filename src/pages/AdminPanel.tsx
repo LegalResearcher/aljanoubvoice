@@ -899,14 +899,14 @@ const AdminPanel = () => {
                             <div className="space-y-2">
                               <Label htmlFor="author">الكاتب</Label>
                               <Select
-                                value={formData.author_id || ""}
-                                onValueChange={(value) => setFormData({ ...formData, author_id: value || null })}
+                                value={formData.author_id || "_none"}
+                                onValueChange={(value) => setFormData({ ...formData, author_id: value === "_none" ? null : value })}
                               >
                                 <SelectTrigger>
                                   <SelectValue placeholder="اختر الكاتب" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="">بدون كاتب</SelectItem>
+                                  <SelectItem value="_none">بدون كاتب</SelectItem>
                                   {authors.map((author: any) => (
                                     <SelectItem key={author.id} value={author.id}>{author.name}</SelectItem>
                                   ))}
