@@ -1180,36 +1180,37 @@ const AdminPanel = () => {
                                 <img 
                                   src={post.image_url} 
                                   alt={post.title}
-                                  className="w-24 h-24 md:w-28 md:h-28 object-cover rounded-lg"
+                                  className="w-24 h-28 md:w-28 md:h-32 object-cover rounded-lg"
                                 />
                               ) : (
-                                <div className="w-24 h-24 md:w-28 md:h-28 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <div className="w-24 h-28 md:w-28 md:h-32 bg-gray-100 rounded-lg flex items-center justify-center">
                                   <ImageIcon className="h-8 w-8 text-gray-400" />
                                 </div>
                               )}
                             </div>
                             
                             {/* Content */}
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 flex flex-col">
+                              {/* Title Row with Actions */}
                               <div className="flex items-start justify-between gap-2">
-                                <h3 className="font-bold text-gray-900 text-base md:text-lg leading-tight line-clamp-2">
+                                <h3 className="font-bold text-gray-900 text-base md:text-lg leading-snug line-clamp-3">
                                   {post.title}
                                 </h3>
                                 {/* Action Buttons */}
                                 <div className="flex gap-1 flex-shrink-0">
                                   <Button 
                                     size="sm" 
-                                    variant="ghost" 
+                                    variant="outline" 
                                     onClick={() => handleEdit(post)}
-                                    className="h-9 w-9 p-0 hover:bg-gray-100"
+                                    className="h-9 w-9 p-0 border-gray-300"
                                   >
                                     <Pencil className="h-4 w-4 text-gray-600" />
                                   </Button>
                                   <Button 
                                     size="sm" 
-                                    variant="ghost" 
+                                    variant="outline" 
                                     onClick={() => handleDelete(post.id)}
-                                    className="h-9 w-9 p-0 hover:bg-red-50"
+                                    className="h-9 w-9 p-0 border-gray-300"
                                   >
                                     <Trash2 className="h-4 w-4 text-red-500" />
                                   </Button>
@@ -1242,11 +1243,9 @@ const AdminPanel = () => {
                               </div>
                               
                               {/* Excerpt */}
-                              {post.excerpt && (
-                                <p className="text-sm text-gray-500 mt-2 line-clamp-2 leading-relaxed">
-                                  {post.excerpt}
-                                </p>
-                              )}
+                              <p className="text-sm text-gray-500 mt-auto pt-2 line-clamp-2 leading-relaxed">
+                                {post.excerpt || post.content?.substring(0, 100) + '...'}
+                              </p>
                             </div>
                           </div>
                         </div>
