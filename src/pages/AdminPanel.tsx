@@ -55,6 +55,8 @@ const AdminPanel = () => {
   const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSEOPreview, setShowSEOPreview] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
   
   // Form state
   const [formData, setFormData] = useState({
@@ -249,6 +251,19 @@ const AdminPanel = () => {
       post.content.includes(searchQuery)
     );
   }, [posts, searchQuery]);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  // Paginated posts
+  const paginatedPosts = useMemo(() => {
+    const startIndex = (currentPage - 1) * postsPerPage;
+    return filteredPosts.slice(startIndex, startIndex + postsPerPage);
+  }, [filteredPosts, currentPage, postsPerPage]);
+
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
 
   // Calculate tags statistics
   const tagStats = useMemo(() => {
@@ -1154,88 +1169,150 @@ const AdminPanel = () => {
                     {searchQuery ? "لا توجد نتائج للبحث" : "لا توجد أخبار بعد. ابدأ بإضافة خبر جديد!"}
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {filteredPosts.map((post: any) => (
-                      <div key={post.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="flex gap-4">
-                          {/* Thumbnail */}
-                          <div className="flex-shrink-0">
-                            {post.image_url ? (
-                              <img 
-                                src={post.image_url} 
-                                alt={post.title}
-                                className="w-24 h-24 md:w-28 md:h-28 object-cover rounded-lg"
-                              />
-                            ) : (
-                              <div className="w-24 h-24 md:w-28 md:h-28 bg-gray-100 rounded-lg flex items-center justify-center">
-                                <ImageIcon className="h-8 w-8 text-gray-400" />
-                              </div>
-                            )}
-                          </div>
-                          
-                          {/* Content */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2">
-                              <h3 className="font-bold text-gray-900 text-base md:text-lg leading-tight line-clamp-2">
-                                {post.title}
-                              </h3>
-                              {/* Action Buttons */}
-                              <div className="flex gap-1 flex-shrink-0">
-                                <Button 
-                                  size="sm" 
-                                  variant="ghost" 
-                                  onClick={() => handleEdit(post)}
-                                  className="h-9 w-9 p-0 hover:bg-gray-100"
-                                >
-                                  <Pencil className="h-4 w-4 text-gray-600" />
-                                </Button>
-                                <Button 
-                                  size="sm" 
-                                  variant="ghost" 
-                                  onClick={() => handleDelete(post.id)}
-                                  className="h-9 w-9 p-0 hover:bg-red-50"
-                                >
-                                  <Trash2 className="h-4 w-4 text-red-500" />
-                                </Button>
-                              </div>
-                            </div>
-                            
-                            {/* Badges Row */}
-                            <div className="flex flex-wrap items-center gap-2 mt-2">
-                              <span className="text-xs text-gray-500">{post.category}</span>
-                              <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                post.status === 'published' ? 'bg-teal-100 text-teal-700' :
-                                post.status === 'draft' ? 'bg-gray-100 text-gray-700' :
-                                post.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
-                                'bg-red-100 text-red-700'
-                              }`}>
-                                {post.status === 'published' ? 'منشور' :
-                                 post.status === 'draft' ? 'مسودة' :
-                                 post.status === 'scheduled' ? 'مجدول' : 'مخفي'}
-                              </span>
-                              {post.featured && (
-                                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
-                                  مميز
-                                </span>
-                              )}
-                              {post.category === 'عاجل' && (
-                                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                                  عاجل
-                                </span>
+                  <>
+                    <div className="space-y-4">
+                      {paginatedPosts.map((post: any) => (
+                        <div key={post.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                          <div className="flex gap-4">
+                            {/* Thumbnail */}
+                            <div className="flex-shrink-0">
+                              {post.image_url ? (
+                                <img 
+                                  src={post.image_url} 
+                                  alt={post.title}
+                                  className="w-24 h-24 md:w-28 md:h-28 object-cover rounded-lg"
+                                />
+                              ) : (
+                                <div className="w-24 h-24 md:w-28 md:h-28 bg-gray-100 rounded-lg flex items-center justify-center">
+                                  <ImageIcon className="h-8 w-8 text-gray-400" />
+                                </div>
                               )}
                             </div>
                             
-                            {/* Excerpt */}
-                            {post.excerpt && (
-                              <p className="text-sm text-gray-500 mt-2 line-clamp-2 leading-relaxed">
-                                {post.excerpt}
-                              </p>
-                            )}
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <h3 className="font-bold text-gray-900 text-base md:text-lg leading-tight line-clamp-2">
+                                  {post.title}
+                                </h3>
+                                {/* Action Buttons */}
+                                <div className="flex gap-1 flex-shrink-0">
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost" 
+                                    onClick={() => handleEdit(post)}
+                                    className="h-9 w-9 p-0 hover:bg-gray-100"
+                                  >
+                                    <Pencil className="h-4 w-4 text-gray-600" />
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost" 
+                                    onClick={() => handleDelete(post.id)}
+                                    className="h-9 w-9 p-0 hover:bg-red-50"
+                                  >
+                                    <Trash2 className="h-4 w-4 text-red-500" />
+                                  </Button>
+                                </div>
+                              </div>
+                              
+                              {/* Badges Row */}
+                              <div className="flex flex-wrap items-center gap-2 mt-2">
+                                <span className="text-xs text-gray-500">{post.category}</span>
+                                <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  post.status === 'published' ? 'bg-teal-100 text-teal-700' :
+                                  post.status === 'draft' ? 'bg-gray-100 text-gray-700' :
+                                  post.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
+                                  'bg-red-100 text-red-700'
+                                }`}>
+                                  {post.status === 'published' ? 'منشور' :
+                                   post.status === 'draft' ? 'مسودة' :
+                                   post.status === 'scheduled' ? 'مجدول' : 'مخفي'}
+                                </span>
+                                {post.featured && (
+                                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                                    مميز
+                                  </span>
+                                )}
+                                {post.category === 'عاجل' && (
+                                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                    عاجل
+                                  </span>
+                                )}
+                              </div>
+                              
+                              {/* Excerpt */}
+                              {post.excerpt && (
+                                <p className="text-sm text-gray-500 mt-2 line-clamp-2 leading-relaxed">
+                                  {post.excerpt}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
+                      ))}
+                    </div>
+                    
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-center gap-2 mt-6 pt-4 border-t border-gray-200">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          className="gap-1"
+                        >
+                          <span>Previous</span>
+                          <span className="sr-only">الصفحة السابقة</span>
+                        </Button>
+                        
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                            // Show first, last, current, and adjacent pages
+                            if (
+                              page === 1 ||
+                              page === totalPages ||
+                              (page >= currentPage - 1 && page <= currentPage + 1)
+                            ) {
+                              return (
+                                <Button
+                                  key={page}
+                                  variant={currentPage === page ? "default" : "ghost"}
+                                  size="sm"
+                                  onClick={() => setCurrentPage(page)}
+                                  className={`w-9 h-9 p-0 ${
+                                    currentPage === page 
+                                      ? "bg-gray-900 text-white hover:bg-gray-800" 
+                                      : "hover:bg-gray-100"
+                                  }`}
+                                >
+                                  {page}
+                                </Button>
+                              );
+                            } else if (
+                              page === currentPage - 2 ||
+                              page === currentPage + 2
+                            ) {
+                              return <span key={page} className="px-1 text-gray-400">...</span>;
+                            }
+                            return null;
+                          })}
+                        </div>
+                        
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          disabled={currentPage === totalPages}
+                          className="gap-1"
+                        >
+                          <span>Next</span>
+                          <span className="sr-only">الصفحة التالية</span>
+                        </Button>
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>
