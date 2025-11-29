@@ -1170,30 +1170,30 @@ const AdminPanel = () => {
                   </div>
                 ) : (
                   <>
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {paginatedPosts.map((post: any) => (
-                        <div key={post.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                          <div className="flex gap-4">
+                        <div key={post.id} className="bg-white border border-gray-100 rounded-2xl p-3 md:p-4 shadow-sm hover:shadow-md transition-all">
+                          <div className="flex gap-3">
                             {/* Thumbnail */}
                             <div className="flex-shrink-0">
                               {post.image_url ? (
                                 <img 
                                   src={post.image_url} 
                                   alt={post.title}
-                                  className="w-24 h-28 md:w-28 md:h-32 object-cover rounded-lg"
+                                  className="w-20 h-24 sm:w-24 sm:h-28 md:w-28 md:h-32 object-cover rounded-xl"
                                 />
                               ) : (
-                                <div className="w-24 h-28 md:w-28 md:h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-                                  <ImageIcon className="h-8 w-8 text-gray-400" />
+                                <div className="w-20 h-24 sm:w-24 sm:h-28 md:w-28 md:h-32 bg-gray-50 rounded-xl flex items-center justify-center">
+                                  <ImageIcon className="h-6 w-6 text-gray-300" />
                                 </div>
                               )}
                             </div>
                             
                             {/* Content */}
-                            <div className="flex-1 min-w-0 flex flex-col">
+                            <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
                               {/* Title Row with Actions */}
-                              <div className="flex items-start justify-between gap-2">
-                                <h3 className="font-bold text-gray-900 text-base md:text-lg leading-snug line-clamp-3">
+                              <div className="flex items-start gap-2">
+                                <h3 className="flex-1 font-bold text-gray-900 text-sm sm:text-base md:text-lg leading-snug line-clamp-3 break-words">
                                   {post.title}
                                 </h3>
                                 {/* Action Buttons */}
@@ -1202,49 +1202,49 @@ const AdminPanel = () => {
                                     size="sm" 
                                     variant="outline" 
                                     onClick={() => handleEdit(post)}
-                                    className="h-9 w-9 p-0 border-gray-300"
+                                    className="h-8 w-8 sm:h-9 sm:w-9 p-0 border-gray-200 rounded-lg hover:bg-gray-50"
                                   >
-                                    <Pencil className="h-4 w-4 text-gray-600" />
+                                    <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
                                   </Button>
                                   <Button 
                                     size="sm" 
                                     variant="outline" 
                                     onClick={() => handleDelete(post.id)}
-                                    className="h-9 w-9 p-0 border-gray-300"
+                                    className="h-8 w-8 sm:h-9 sm:w-9 p-0 border-gray-200 rounded-lg hover:bg-red-50"
                                   >
-                                    <Trash2 className="h-4 w-4 text-red-500" />
+                                    <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-400" />
                                   </Button>
                                 </div>
                               </div>
                               
                               {/* Badges Row */}
-                              <div className="flex flex-wrap items-center gap-2 mt-2">
-                                <span className="text-xs text-gray-500">{post.category}</span>
-                                <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                  post.status === 'published' ? 'bg-teal-100 text-teal-700' :
-                                  post.status === 'draft' ? 'bg-gray-100 text-gray-700' :
-                                  post.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
-                                  'bg-red-100 text-red-700'
+                              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-2">
+                                <span className="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded">{post.category}</span>
+                                <span className={`px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  post.status === 'published' ? 'bg-emerald-50 text-emerald-600' :
+                                  post.status === 'draft' ? 'bg-gray-100 text-gray-600' :
+                                  post.status === 'scheduled' ? 'bg-blue-50 text-blue-600' :
+                                  'bg-red-50 text-red-600'
                                 }`}>
                                   {post.status === 'published' ? 'منشور' :
                                    post.status === 'draft' ? 'مسودة' :
                                    post.status === 'scheduled' ? 'مجدول' : 'مخفي'}
                                 </span>
                                 {post.featured && (
-                                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                                  <span className="px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-orange-600">
                                     مميز
                                   </span>
                                 )}
                                 {post.category === 'عاجل' && (
-                                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                  <span className="px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500 text-white">
                                     عاجل
                                   </span>
                                 )}
                               </div>
                               
                               {/* Excerpt */}
-                              <p className="text-sm text-gray-500 mt-auto pt-2 line-clamp-2 leading-relaxed">
-                                {post.excerpt || post.content?.substring(0, 100) + '...'}
+                              <p className="text-xs sm:text-sm text-gray-400 mt-2 line-clamp-2 leading-relaxed break-words">
+                                {post.excerpt || (post.content ? post.content.substring(0, 120) + '...' : '')}
                               </p>
                             </div>
                           </div>
@@ -1254,49 +1254,34 @@ const AdminPanel = () => {
                     
                     {/* Pagination */}
                     {totalPages > 1 && (
-                      <div className="flex items-center justify-center gap-2 mt-6 pt-4 border-t border-gray-200">
+                      <div className="flex items-center justify-center gap-1 sm:gap-2 mt-6 pt-4">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                           disabled={currentPage === 1}
-                          className="gap-1"
+                          className="text-xs sm:text-sm text-gray-500 hover:text-gray-700 disabled:opacity-40 px-2 sm:px-3"
                         >
-                          <span>Previous</span>
-                          <span className="sr-only">الصفحة السابقة</span>
+                          <span>&lt;</span>
+                          <span className="mr-1">Previous</span>
                         </Button>
                         
                         <div className="flex items-center gap-1">
-                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                            // Show first, last, current, and adjacent pages
-                            if (
-                              page === 1 ||
-                              page === totalPages ||
-                              (page >= currentPage - 1 && page <= currentPage + 1)
-                            ) {
-                              return (
-                                <Button
-                                  key={page}
-                                  variant={currentPage === page ? "default" : "ghost"}
-                                  size="sm"
-                                  onClick={() => setCurrentPage(page)}
-                                  className={`w-9 h-9 p-0 ${
-                                    currentPage === page 
-                                      ? "bg-gray-900 text-white hover:bg-gray-800" 
-                                      : "hover:bg-gray-100"
-                                  }`}
-                                >
-                                  {page}
-                                </Button>
-                              );
-                            } else if (
-                              page === currentPage - 2 ||
-                              page === currentPage + 2
-                            ) {
-                              return <span key={page} className="px-1 text-gray-400">...</span>;
-                            }
-                            return null;
-                          })}
+                          {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((page) => (
+                            <Button
+                              key={page}
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setCurrentPage(page)}
+                              className={`w-8 h-8 sm:w-9 sm:h-9 p-0 text-xs sm:text-sm rounded-lg ${
+                                currentPage === page 
+                                  ? "border border-gray-300 bg-white text-gray-900 font-medium shadow-sm" 
+                                  : "text-gray-500 hover:bg-gray-50"
+                              }`}
+                            >
+                              {page}
+                            </Button>
+                          ))}
                         </div>
                         
                         <Button
@@ -1304,10 +1289,10 @@ const AdminPanel = () => {
                           size="sm"
                           onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                           disabled={currentPage === totalPages}
-                          className="gap-1"
+                          className="text-xs sm:text-sm text-gray-500 hover:text-gray-700 disabled:opacity-40 px-2 sm:px-3"
                         >
-                          <span>Next</span>
-                          <span className="sr-only">الصفحة التالية</span>
+                          <span className="ml-1">Next</span>
+                          <span>&gt;</span>
                         </Button>
                       </div>
                     )}
