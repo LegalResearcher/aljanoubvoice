@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus, LogOut, Upload, X, Users, BarChart3, Eye, Save, Search, Tag } from "lucide-react";
+import { Pencil, Trash2, Plus, LogOut, Upload, X, Users, BarChart3, Eye, Save, Search, Tag, ImageIcon } from "lucide-react";
 import { z } from "zod";
 import { useCallback, useMemo } from "react";
 
@@ -1154,54 +1154,88 @@ const AdminPanel = () => {
                     {searchQuery ? "لا توجد نتائج للبحث" : "لا توجد أخبار بعد. ابدأ بإضافة خبر جديد!"}
                   </div>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>العنوان</TableHead>
-                        <TableHead>القسم</TableHead>
-                        <TableHead>الحالة</TableHead>
-                        <TableHead>مميز</TableHead>
-                        <TableHead>المشاهدات</TableHead>
-                        <TableHead>تاريخ النشر</TableHead>
-                        <TableHead>الإجراءات</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredPosts.map((post: any) => (
-                        <TableRow key={post.id}>
-                          <TableCell className="font-medium max-w-xs truncate">{post.title}</TableCell>
-                          <TableCell>{post.category}</TableCell>
-                          <TableCell>
-                            <span className={`px-2 py-1 rounded text-xs ${
-                              post.status === 'published' ? 'bg-green-100 text-green-800' :
-                              post.status === 'draft' ? 'bg-gray-100 text-gray-800' :
-                              post.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {post.status === 'published' ? 'منشور' :
-                               post.status === 'draft' ? 'مسودة' :
-                               post.status === 'scheduled' ? 'مجدول' : 'مخفي'}
-                            </span>
-                          </TableCell>
-                          <TableCell>{post.featured ? "✓" : "-"}</TableCell>
-                          <TableCell>{post.views || 0}</TableCell>
-                          <TableCell>
-                            {new Date(post.created_at).toLocaleDateString('ar-YE')}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button size="sm" variant="outline" onClick={() => handleEdit(post)}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button size="sm" variant="destructive" onClick={() => handleDelete(post.id)}>
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                  <div className="space-y-4">
+                    {filteredPosts.map((post: any) => (
+                      <div key={post.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex gap-4">
+                          {/* Thumbnail */}
+                          <div className="flex-shrink-0">
+                            {post.image_url ? (
+                              <img 
+                                src={post.image_url} 
+                                alt={post.title}
+                                className="w-24 h-24 md:w-28 md:h-28 object-cover rounded-lg"
+                              />
+                            ) : (
+                              <div className="w-24 h-24 md:w-28 md:h-28 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <ImageIcon className="h-8 w-8 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <h3 className="font-bold text-gray-900 text-base md:text-lg leading-tight line-clamp-2">
+                                {post.title}
+                              </h3>
+                              {/* Action Buttons */}
+                              <div className="flex gap-1 flex-shrink-0">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  onClick={() => handleEdit(post)}
+                                  className="h-9 w-9 p-0 hover:bg-gray-100"
+                                >
+                                  <Pencil className="h-4 w-4 text-gray-600" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  onClick={() => handleDelete(post.id)}
+                                  className="h-9 w-9 p-0 hover:bg-red-50"
+                                >
+                                  <Trash2 className="h-4 w-4 text-red-500" />
+                                </Button>
+                              </div>
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                            
+                            {/* Badges Row */}
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                              <span className="text-xs text-gray-500">{post.category}</span>
+                              <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                post.status === 'published' ? 'bg-teal-100 text-teal-700' :
+                                post.status === 'draft' ? 'bg-gray-100 text-gray-700' :
+                                post.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
+                                'bg-red-100 text-red-700'
+                              }`}>
+                                {post.status === 'published' ? 'منشور' :
+                                 post.status === 'draft' ? 'مسودة' :
+                                 post.status === 'scheduled' ? 'مجدول' : 'مخفي'}
+                              </span>
+                              {post.featured && (
+                                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                                  مميز
+                                </span>
+                              )}
+                              {post.category === 'عاجل' && (
+                                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                  عاجل
+                                </span>
+                              )}
+                            </div>
+                            
+                            {/* Excerpt */}
+                            {post.excerpt && (
+                              <p className="text-sm text-gray-500 mt-2 line-clamp-2 leading-relaxed">
+                                {post.excerpt}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </CardContent>
             </Card>
