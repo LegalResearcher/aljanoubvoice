@@ -327,16 +327,18 @@ const Home = () => {
                 <div className="lg:col-span-2">
                   <Link to={`/post/${videoPosts[0].id}`} className="block">
                     <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl border border-gray-700 relative group cursor-pointer">
-                      {videoPosts[0].external_video_url ? (
-                        <VideoEmbed url={videoPosts[0].external_video_url} />
-                      ) : videoPosts[0].image_url?.includes('mp4') || videoPosts[0].image_url?.includes('webm') ? (
-                        <video src={videoPosts[0].image_url} className="w-full h-full object-cover" controls />
-                      ) : (
-                        <>
-                          <img src={videoPosts[0].image_url || "https://placehold.co/800x450/000/fff?text=فيديو"} className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition" alt={videoPosts[0].title} />
-                          <i className="fas fa-play-circle text-6xl text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-90 group-hover:scale-110 transition"></i>
-                        </>
-                      )}
+                      <img 
+                        src={videoPosts[0].image_url || "https://placehold.co/800x450/1a2b49/fff?text=فيديو"} 
+                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition" 
+                        alt={videoPosts[0].title} 
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        {videoPosts[0].external_video_url ? (
+                          <i className="fas fa-external-link-alt text-5xl text-white opacity-90 group-hover:scale-110 transition drop-shadow-lg"></i>
+                        ) : (
+                          <i className="fas fa-play-circle text-6xl text-white opacity-90 group-hover:scale-110 transition drop-shadow-lg"></i>
+                        )}
+                      </div>
                     </div>
                   </Link>
                   <h3 className="text-white font-bold text-xl mt-4">
