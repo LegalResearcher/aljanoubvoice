@@ -39,6 +39,7 @@ const AdminPanel = () => {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [canAccessAdmin, setCanAccessAdmin] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAuthorDialogOpen, setIsAuthorDialogOpen] = useState(false);
@@ -100,7 +101,7 @@ const AdminPanel = () => {
     "عاجل"
   ];
 
-  // Check auth and admin role
+  // Check auth and admin/editor role
   const checkUser = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -108,17 +109,22 @@ const AdminPanel = () => {
       return;
     }
 
-    const { data: isAdminUser, error } = await supabase.rpc('is_admin');
+    // Check if user can access admin panel (admin or editor)
+    const { data: canAccess, error: accessError } = await supabase.rpc('can_access_admin');
     
-    if (error || !isAdminUser) {
+    if (accessError || !canAccess) {
       toast.error("ليس لديك صلاحية الوصول للوحة التحكم");
       await supabase.auth.signOut();
       navigate("/admin/login");
       return;
     }
 
+    // Check if user is admin (for showing user management link)
+    const { data: isAdminUser } = await supabase.rpc('is_admin');
+
     setUser(session.user);
-    setIsAdmin(true);
+    setCanAccessAdmin(true);
+    setIsAdmin(isAdminUser || false);
     setIsCheckingAuth(false);
   };
 
@@ -147,7 +153,7 @@ const AdminPanel = () => {
       if (error) throw error;
       return data;
     },
-    enabled: isAdmin
+    enabled: canAccessAdmin
   });
 
   // Fetch authors
@@ -162,7 +168,7 @@ const AdminPanel = () => {
       if (error) throw error;
       return data;
     },
-    enabled: isAdmin
+    enabled: canAccessAdmin
   });
 
   // Calculate word count and reading time
@@ -709,7 +715,7 @@ const AdminPanel = () => {
     count: posts.filter((p: any) => p.category === cat).length
   })).filter(c => c.count > 0).sort((a, b) => b.count - a.count);
 
-  if (isCheckingAuth || !user || !isAdmin) {
+  if (isCheckingAuth || !user || !canAccessAdmin) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-southGray">
         <div className="text-center">
@@ -734,6 +740,12 @@ const AdminPanel = () => {
             <Button onClick={() => navigate("/")} variant="outline">
               عودة للموقع
             </Button>
+            {isAdmin && (
+              <Button onClick={() => navigate("/admin/users")} variant="outline">
+                <Users className="ml-2 h-4 w-4" />
+                إدارة المستخدمين
+              </Button>
+            )}
             <Button onClick={handleLogout} variant="destructive">
               <LogOut className="ml-2 h-4 w-4" />
               تسجيل الخروج
