@@ -727,34 +727,38 @@ const AdminPanel = () => {
   }
 
   return (
-    <div className="min-h-screen bg-southGray p-4">
-      <div className="container mx-auto max-w-7xl">
-        <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen bg-southGray p-2">
+      {/* container padding أقل على الموبايل */}
+      <div className="container mx-auto max-w-7xl px-2">
+        {/* Header: stacked on mobile, inline on md+ */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-black text-southBlue">
+            <h1 className="text-2xl md:text-3xl font-black text-southBlue leading-tight">
               لوحة التحكم - <span className="text-accentRed">الجنوب فويس</span>
             </h1>
-            <p className="text-gray-600 mt-1">مرحباً، {user.email}</p>
+            <p className="text-gray-600 mt-1 text-sm">مرحباً، {user.email}</p>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => navigate("/")} variant="outline">
+
+          {/* Buttons group: wrap on small screens */}
+          <div className="flex gap-2 flex-wrap">
+            <Button onClick={() => navigate("/")} variant="outline" className="whitespace-nowrap">
               عودة للموقع
             </Button>
             {isAdmin && (
-              <Button onClick={() => navigate("/admin/users")} variant="outline">
+              <Button onClick={() => navigate("/admin/users")} variant="outline" className="whitespace-nowrap">
                 <Users className="ml-2 h-4 w-4" />
                 إدارة المستخدمين
               </Button>
             )}
-            <Button onClick={handleLogout} variant="destructive">
+            <Button onClick={handleLogout} variant="destructive" className="whitespace-nowrap">
               <LogOut className="ml-2 h-4 w-4" />
               تسجيل الخروج
             </Button>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        {/* Stats Cards: on mobile 2 cols (or 1 if narrow), md:4 cols */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -802,7 +806,8 @@ const AdminPanel = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4">
+          {/* Make tabs list wrap nicely on mobile */}
+          <TabsList className="mb-4 flex flex-wrap gap-2">
             <TabsTrigger value="posts">إدارة الأخبار</TabsTrigger>
             <TabsTrigger value="authors">الكتّاب</TabsTrigger>
             <TabsTrigger value="stats">الإحصائيات</TabsTrigger>
@@ -813,352 +818,359 @@ const AdminPanel = () => {
             <Card>
               <CardHeader>
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
                     <div>
                       <CardTitle>إدارة الأخبار</CardTitle>
                       <CardDescription>إضافة وتعديل وحذف الأخبار</CardDescription>
                     </div>
-                    <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                      setIsDialogOpen(open);
-                      if (!open) resetForm();
-                    }}>
-                      <DialogTrigger asChild>
-                        <Button className="bg-southBlue hover:bg-southLight">
-                          <Plus className="ml-2 h-4 w-4" />
-                          إضافة خبر جديد
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>{editingPost ? "تعديل الخبر" : "إضافة خبر جديد"}</DialogTitle>
-                          <DialogDescription>
-                            املأ البيانات التالية لنشر الخبر
-                            {lastAutoSave && formData.status === 'draft' && (
-                              <span className="text-green-600 mr-2">
-                                (حُفظ تلقائياً: {lastAutoSave.toLocaleTimeString('ar-EG')})
-                              </span>
-                            )}
-                          </DialogDescription>
-                        </DialogHeader>
-                      <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="title">عنوان الخبر *</Label>
-                            <Input
-                              id="title"
-                              value={formData.title}
-                              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                              required
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="source">نوع الخبر / المصدر</Label>
-                            <Input
-                              id="source"
-                              value={formData.source}
-                              onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-                              placeholder="الجنوب فويس | خاص"
-                            />
-                          </div>
-                        </div>
 
-                        <div className="space-y-2">
-                          <Label htmlFor="excerpt">ملخص الخبر</Label>
-                          <Textarea
-                            id="excerpt"
-                            value={formData.excerpt}
-                            onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                            rows={2}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="content">محتوى الخبر *</Label>
-                          <Textarea
-                            id="content"
-                            value={formData.content}
-                            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                            required
-                            rows={6}
-                          />
-                          <div className="text-xs text-gray-500">
-                            {calculateWordStats(formData.content).wordCount} كلمة • {calculateWordStats(formData.content).readingTime} دقيقة للقراءة
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="category">القسم *</Label>
-                            <Select
-                              value={formData.category}
-                              onValueChange={(value) => setFormData({ ...formData, category: value })}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {categories.map(cat => (
-                                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="status">حالة النشر</Label>
-                            <Select
-                              value={formData.status}
-                              onValueChange={(value) => setFormData({ ...formData, status: value })}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="draft">مسودة</SelectItem>
-                                <SelectItem value="scheduled">مجدول</SelectItem>
-                                <SelectItem value="published">منشور</SelectItem>
-                                <SelectItem value="hidden">مخفي</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {formData.category === "آراء واتجاهات" && (
+                    <div className="flex items-center gap-2 w-full md:w-auto">
+                      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                        setIsDialogOpen(open);
+                        if (!open) resetForm();
+                      }}>
+                        <DialogTrigger asChild>
+                          <Button className="bg-southBlue hover:bg-southLight whitespace-nowrap">
+                            <Plus className="ml-2 h-4 w-4" />
+                            إضافة خبر جديد
+                          </Button>
+                        </DialogTrigger>
+                        {/* DialogContent مرن على الموبايل */}
+                        <DialogContent className="w-full max-w-full sm:max-w-3xl max-h-[90vh] overflow-y-auto p-4">
+                          <DialogHeader>
+                            <DialogTitle>{editingPost ? "تعديل الخبر" : "إضافة خبر جديد"}</DialogTitle>
+                            <DialogDescription>
+                              املأ البيانات التالية لنشر الخبر
+                              {lastAutoSave && formData.status === 'draft' && (
+                                <span className="text-green-600 mr-2">
+                                  (حُفظ تلقائياً: {lastAutoSave.toLocaleTimeString('ar-EG')})
+                                </span>
+                              )}
+                            </DialogDescription>
+                          </DialogHeader>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                              <Label htmlFor="author">الكاتب</Label>
+                              <Label htmlFor="title">عنوان الخبر *</Label>
+                              <Input
+                                id="title"
+                                value={formData.title}
+                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                required
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="source">نوع الخبر / المصدر</Label>
+                              <Input
+                                id="source"
+                                value={formData.source}
+                                onChange={(e) => setFormData({ ...formData, source: e.target.value })}
+                                placeholder="الجنوب فويس | خاص"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="excerpt">ملخص الخبر</Label>
+                            <Textarea
+                              id="excerpt"
+                              value={formData.excerpt}
+                              onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                              rows={2}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="content">محتوى الخبر *</Label>
+                            <Textarea
+                              id="content"
+                              value={formData.content}
+                              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                              required
+                              rows={6}
+                            />
+                            <div className="text-xs text-gray-500">
+                              {calculateWordStats(formData.content).wordCount} كلمة • {calculateWordStats(formData.content).readingTime} دقيقة للقراءة
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="category">القسم *</Label>
                               <Select
-                                value={formData.author_id || "_none"}
-                                onValueChange={(value) => setFormData({ ...formData, author_id: value === "_none" ? null : value })}
+                                value={formData.category}
+                                onValueChange={(value) => setFormData({ ...formData, category: value })}
                               >
                                 <SelectTrigger>
-                                  <SelectValue placeholder="اختر الكاتب" />
+                                  <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="_none">بدون كاتب</SelectItem>
-                                  {authors.map((author: any) => (
-                                    <SelectItem key={author.id} value={author.id}>{author.name}</SelectItem>
+                                  {categories.map(cat => (
+                                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
                             </div>
-                          )}
-                        </div>
 
-                        {formData.status === "scheduled" && (
-                          <div className="space-y-2">
-                            <Label htmlFor="scheduled_at">تاريخ النشر المجدول</Label>
-                            <Input
-                              id="scheduled_at"
-                              type="datetime-local"
-                              value={formData.scheduled_at}
-                              onChange={(e) => setFormData({ ...formData, scheduled_at: e.target.value })}
-                            />
-                          </div>
-                        )}
+                            <div className="space-y-2">
+                              <Label htmlFor="status">حالة النشر</Label>
+                              <Select
+                                value={formData.status}
+                                onValueChange={(value) => setFormData({ ...formData, status: value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="draft">مسودة</SelectItem>
+                                  <SelectItem value="scheduled">مجدول</SelectItem>
+                                  <SelectItem value="published">منشور</SelectItem>
+                                  <SelectItem value="hidden">مخفي</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
 
-                        <div className="space-y-2">
-                          <Label htmlFor="image_url">رابط الصورة الرئيسية</Label>
-                          <div className="flex gap-2">
-                            <Input
-                              id="image_url"
-                              value={formData.image_url}
-                              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                              placeholder="https://example.com/image.jpg"
-                              dir="ltr"
-                              className="text-right flex-1"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => fileInputRef.current?.click()}
-                              disabled={isUploading}
-                              className="whitespace-nowrap"
-                            >
-                              <Upload className="ml-2 h-4 w-4" />
-                              {isUploading ? "جاري الرفع..." : "رفع صورة"}
-                            </Button>
-                            <input
-                              ref={fileInputRef}
-                              type="file"
-                              accept="image/*,video/*"
-                              onChange={handleFileUpload}
-                              className="hidden"
-                            />
-                          </div>
-                          {uploadedFile && (
-                            <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <img src={uploadedFile.url} alt="معاينة" className="w-16 h-16 object-cover rounded" />
-                                  <p className="text-xs text-green-600">{uploadedFile.name}</p>
-                                </div>
-                                <Button type="button" variant="ghost" size="sm" onClick={removeUploadedFile}>
-                                  <X className="h-4 w-4" />
-                                </Button>
+                            {formData.category === "آراء واتجاهات" && (
+                              <div className="space-y-2">
+                                <Label htmlFor="author">الكاتب</Label>
+                                <Select
+                                  value={formData.author_id || "_none"}
+                                  onValueChange={(value) => setFormData({ ...formData, author_id: value === "_none" ? null : value })}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="اختر الكاتب" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="_none">بدون كاتب</SelectItem>
+                                    {authors.map((author: any) => (
+                                      <SelectItem key={author.id} value={author.id}>{author.name}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
+                            )}
+                          </div>
+
+                          {formData.status === "scheduled" && (
+                            <div className="space-y-2">
+                              <Label htmlFor="scheduled_at">تاريخ النشر المجدول</Label>
+                              <Input
+                                id="scheduled_at"
+                                type="datetime-local"
+                                value={formData.scheduled_at}
+                                onChange={(e) => setFormData({ ...formData, scheduled_at: e.target.value })}
+                              />
                             </div>
                           )}
-                        </div>
 
-                        <div className="space-y-2">
-                          <Label htmlFor="external_video_url">رابط فيديو خارجي (YouTube, Facebook, TikTok, etc.)</Label>
-                          <Input
-                            id="external_video_url"
-                            value={formData.external_video_url}
-                            onChange={(e) => setFormData({ ...formData, external_video_url: e.target.value })}
-                            placeholder="https://youtube.com/watch?v=..."
-                            dir="ltr"
-                            className="text-right"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>رفع وسائط إضافية</Label>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => additionalMediaInputRef.current?.click()}
-                            disabled={isUploading}
-                            className="w-full"
-                          >
-                            <Upload className="ml-2 h-4 w-4" />
-                            {isUploading ? "جاري الرفع..." : "رفع وسائط إضافية"}
-                          </Button>
-                          <input
-                            ref={additionalMediaInputRef}
-                            type="file"
-                            accept="image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/mov,video/webm"
-                            onChange={handleAdditionalMediaUpload}
-                            multiple
-                            className="hidden"
-                          />
-                          {additionalMedia.length > 0 && (
-                            <div className="mt-2 grid grid-cols-4 gap-2">
-                              {additionalMedia.map((media, index) => (
-                                <div key={index} className="relative group">
-                                  {media.type === 'video' ? (
-                                    <video src={media.url} className="w-full h-20 object-cover rounded" />
-                                  ) : (
-                                    <img src={media.url} alt="معاينة" className="w-full h-20 object-cover rounded" />
-                                  )}
-                                  <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="sm"
-                                    className="absolute -top-2 -right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
-                                    onClick={() => removeAdditionalMedia(index)}
-                                  >
-                                    <X className="h-3 w-3" />
+                          <div className="space-y-2">
+                            <Label htmlFor="image_url">رابط الصورة الرئيسية</Label>
+                            <div className="flex gap-2 flex-col sm:flex-row">
+                              <Input
+                                id="image_url"
+                                value={formData.image_url}
+                                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                                placeholder="https://example.com/image.jpg"
+                                dir="ltr"
+                                className="text-right flex-1"
+                              />
+                              <div className="flex gap-2 w-full sm:w-auto">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => fileInputRef.current?.click()}
+                                  disabled={isUploading}
+                                  className="whitespace-nowrap"
+                                >
+                                  <Upload className="ml-2 h-4 w-4" />
+                                  {isUploading ? "جاري الرفع..." : "رفع صورة"}
+                                </Button>
+                                <input
+                                  ref={fileInputRef}
+                                  type="file"
+                                  accept="image/*,video/*"
+                                  onChange={handleFileUpload}
+                                  className="hidden"
+                                />
+                              </div>
+                            </div>
+                            {uploadedFile && (
+                              <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <img src={uploadedFile.url} alt="معاينة" className="w-16 h-16 object-cover rounded" />
+                                    <p className="text-xs text-green-600">{uploadedFile.name}</p>
+                                  </div>
+                                  <Button type="button" variant="ghost" size="sm" onClick={removeUploadedFile}>
+                                    <X className="h-4 w-4" />
                                   </Button>
                                 </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                              </div>
+                            )}
+                          </div>
 
-                        {/* SEO Section */}
-                        <div className="border-t pt-4 mt-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <h4 className="font-bold text-southBlue">إعدادات SEO</h4>
+                          <div className="space-y-2">
+                            <Label htmlFor="external_video_url">رابط فيديو خارجي (YouTube, Facebook, TikTok, etc.)</Label>
+                            <Input
+                              id="external_video_url"
+                              value={formData.external_video_url}
+                              onChange={(e) => setFormData({ ...formData, external_video_url: e.target.value })}
+                              placeholder="https://youtube.com/watch?v=..."
+                              dir="ltr"
+                              className="text-right"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>رفع وسائط إضافية</Label>
                             <Button
                               type="button"
                               variant="outline"
-                              size="sm"
-                              onClick={() => setShowSEOPreview(!showSEOPreview)}
+                              onClick={() => additionalMediaInputRef.current?.click()}
+                              disabled={isUploading}
+                              className="w-full md:w-auto"
                             >
-                              {showSEOPreview ? "إخفاء المعاينة" : "معاينة SEO"}
+                              <Upload className="ml-2 h-4 w-4" />
+                              {isUploading ? "جاري الرفع..." : "رفع وسائط إضافية"}
                             </Button>
-                          </div>
-                          
-                          {/* SEO Preview */}
-                          {showSEOPreview && (
-                            <div className="mb-4 p-4 bg-gray-50 rounded-lg border">
-                              <p className="text-xs text-gray-500 mb-2">معاينة نتيجة البحث في Google:</p>
-                              <div className="bg-white p-3 rounded border">
-                                <p className="text-blue-700 text-lg hover:underline cursor-pointer truncate">
-                                  {formData.meta_title || formData.title || "عنوان المقال"}
-                                </p>
-                                <p className="text-green-700 text-sm" dir="ltr">
-                                  aljanoubvoice.com/post/{formData.slug || generateSlug(formData.title) || "slug"}
-                                </p>
-                                <p className="text-gray-600 text-sm mt-1 line-clamp-2">
-                                  {formData.meta_description || formData.excerpt || formData.content.substring(0, 160) || "وصف المقال..."}
-                                </p>
+                            <input
+                              ref={additionalMediaInputRef}
+                              type="file"
+                              accept="image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/mov,video/webm"
+                              onChange={handleAdditionalMediaUpload}
+                              multiple
+                              className="hidden"
+                            />
+                            {additionalMedia.length > 0 && (
+                              <div className="mt-2 grid grid-cols-4 gap-2">
+                                {additionalMedia.map((media, index) => (
+                                  <div key={index} className="relative group">
+                                    {media.type === 'video' ? (
+                                      <video src={media.url} className="w-full h-20 object-cover rounded" />
+                                    ) : (
+                                      <img src={media.url} alt="معاينة" className="w-full h-20 object-cover rounded" />
+                                    )}
+                                    <Button
+                                      type="button"
+                                      variant="destructive"
+                                      size="sm"
+                                      className="absolute -top-2 -right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
+                                      onClick={() => removeAdditionalMedia(index)}
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                ))}
                               </div>
-                              
-                              <p className="text-xs text-gray-500 mt-4 mb-2">معاينة المشاركة على Facebook:</p>
-                              <div className="bg-white rounded border overflow-hidden">
-                                {formData.image_url && (
-                                  <img src={formData.image_url} alt="معاينة" className="w-full h-40 object-cover" />
-                                )}
-                                <div className="p-3 bg-gray-100">
-                                  <p className="text-xs text-gray-500 uppercase">aljanoubvoice.com</p>
-                                  <p className="font-bold text-gray-900 truncate">
+                            )}
+                          </div>
+
+                          {/* SEO Section */}
+                          <div className="border-t pt-4 mt-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="font-bold text-southBlue">إعدادات SEO</h4>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowSEOPreview(!showSEOPreview)}
+                              >
+                                {showSEOPreview ? "إخفاء المعاينة" : "معاينة SEO"}
+                              </Button>
+                            </div>
+                            
+                            {/* SEO Preview */}
+                            {showSEOPreview && (
+                              <div className="mb-4 p-4 bg-gray-50 rounded-lg border">
+                                <p className="text-xs text-gray-500 mb-2">معاينة نتيجة البحث في Google:</p>
+                                <div className="bg-white p-3 rounded border">
+                                  <p className="text-blue-700 text-lg hover:underline cursor-pointer truncate">
                                     {formData.meta_title || formData.title || "عنوان المقال"}
                                   </p>
-                                  <p className="text-sm text-gray-600 line-clamp-2">
-                                    {formData.meta_description || formData.excerpt || "وصف المقال..."}
+                                  <p className="text-green-700 text-sm" dir="ltr">
+                                    aljanoubvoice.com/post/{formData.slug || generateSlug(formData.title) || "slug"}
+                                  </p>
+                                  <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+                                    {formData.meta_description || formData.excerpt || formData.content.substring(0, 160) || "وصف المقال..."}
                                   </p>
                                 </div>
+                                
+                                <p className="text-xs text-gray-500 mt-4 mb-2">معاينة المشاركة على Facebook:</p>
+                                <div className="bg-white rounded border overflow-hidden">
+                                  {formData.image_url && (
+                                    <img src={formData.image_url} alt="معاينة" className="w-full h-40 object-cover" />
+                                  )}
+                                  <div className="p-3 bg-gray-100">
+                                    <p className="text-xs text-gray-500 uppercase">aljanoubvoice.com</p>
+                                    <p className="font-bold text-gray-900 truncate">
+                                      {formData.meta_title || formData.title || "عنوان المقال"}
+                                    </p>
+                                    <p className="text-sm text-gray-600 line-clamp-2">
+                                      {formData.meta_description || formData.excerpt || "وصف المقال..."}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            <div className="space-y-3">
+                              <div className="space-y-2">
+                                <Label htmlFor="meta_title">عنوان SEO (يُولّد تلقائياً)</Label>
+                                <Input
+                                  id="meta_title"
+                                  value={formData.meta_title}
+                                  onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
+                                  placeholder={formData.title || "سيُؤخذ من العنوان"}
+                                />
+                                <p className="text-xs text-gray-500">{(formData.meta_title || formData.title || "").length}/60 حرف</p>
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="meta_description">وصف SEO (يُولّد تلقائياً)</Label>
+                                <Textarea
+                                  id="meta_description"
+                                  value={formData.meta_description}
+                                  onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
+                                  placeholder={formData.excerpt || "سيُؤخذ من الملخص"}
+                                  rows={2}
+                                />
+                                <p className="text-xs text-gray-500">{(formData.meta_description || formData.excerpt || "").length}/160 حرف</p>
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="slug">الرابط الثابت Slug (يُولّد تلقائياً)</Label>
+                                <Input
+                                  id="slug"
+                                  value={formData.slug}
+                                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                                  placeholder={generateSlug(formData.title) || "سيُولّد من العنوان"}
+                                  dir="ltr"
+                                  className="text-right"
+                                />
                               </div>
                             </div>
-                          )}
-                          
-                          <div className="space-y-3">
-                            <div className="space-y-2">
-                              <Label htmlFor="meta_title">عنوان SEO (يُولّد تلقائياً)</Label>
-                              <Input
-                                id="meta_title"
-                                value={formData.meta_title}
-                                onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
-                                placeholder={formData.title || "سيُؤخذ من العنوان"}
-                              />
-                              <p className="text-xs text-gray-500">{(formData.meta_title || formData.title || "").length}/60 حرف</p>
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="meta_description">وصف SEO (يُولّد تلقائياً)</Label>
-                              <Textarea
-                                id="meta_description"
-                                value={formData.meta_description}
-                                onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
-                                placeholder={formData.excerpt || "سيُؤخذ من الملخص"}
-                                rows={2}
-                              />
-                              <p className="text-xs text-gray-500">{(formData.meta_description || formData.excerpt || "").length}/160 حرف</p>
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="slug">الرابط الثابت Slug (يُولّد تلقائياً)</Label>
-                              <Input
-                                id="slug"
-                                value={formData.slug}
-                                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                placeholder={generateSlug(formData.title) || "سيُولّد من العنوان"}
-                                dir="ltr"
-                                className="text-right"
-                              />
-                            </div>
                           </div>
-                        </div>
 
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            id="featured"
-                            checked={formData.featured}
-                            onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                            className="w-4 h-4"
-                          />
-                          <Label htmlFor="featured" className="cursor-pointer">
-                            خبر مميز (يظهر في السلايدر)
-                          </Label>
-                        </div>
-                        
-                        <Button type="submit" className="w-full bg-southBlue hover:bg-southLight">
-                          {saveMutation.isPending ? "جاري الحفظ..." : (editingPost ? "تحديث الخبر" : "نشر الخبر")}
-                        </Button>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="featured"
+                              checked={formData.featured}
+                              onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                              className="w-4 h-4"
+                            />
+                            <Label htmlFor="featured" className="cursor-pointer">
+                              خبر مميز (يظهر في السلايدر)
+                            </Label>
+                          </div>
+                          
+                          <Button type="submit" className="w-full bg-southBlue hover:bg-southLight">
+                            {saveMutation.isPending ? "جاري الحفظ..." : (editingPost ? "تحديث الخبر" : "نشر الخبر")}
+                          </Button>
+                        </form>
+                      </DialogContent>
+                      </Dialog>
+                    </div>
                   </div>
+
                   {/* Search Field */}
                   <div className="relative">
                     <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -1333,7 +1345,7 @@ const AdminPanel = () => {
                         إضافة كاتب جديد
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="w-full max-w-sm">
                       <DialogHeader>
                         <DialogTitle>{editingAuthor ? "تعديل الكاتب" : "إضافة كاتب جديد"}</DialogTitle>
                       </DialogHeader>
