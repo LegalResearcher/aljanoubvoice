@@ -7,7 +7,6 @@ import Ticker from "@/components/Ticker";
 import NewsSlider from "@/components/NewsSlider";
 import NewsCard from "@/components/NewsCard";
 import Footer from "@/components/Footer";
-import { getOptimizedImage, optimizeImageUrl } from "@/lib/imageOptimizer";
 
 const Home = () => {
   // Fetch posts from database
@@ -32,7 +31,7 @@ const Home = () => {
     id: post.id,
     title: post.title,
     category: post.category,
-    image: getOptimizedImage.slider(post.image_url) || 'https://placehold.co/1200x800/1A2B49/FFF?text=' + encodeURIComponent(post.category),
+    image: post.image_url || 'https://placehold.co/1200x800/1A2B49/FFF?text=' + encodeURIComponent(post.category),
     categoryColor: getCategoryColor(post.category)
   }));
 
@@ -73,7 +72,7 @@ const Home = () => {
                   variant="hero"
                   title={adenPosts[0].title}
                   excerpt={adenPosts[0].excerpt}
-                  image={getOptimizedImage.hero(adenPosts[0].image_url) || 'https://placehold.co/800x600/1A2B49/FFF?text=عدن'}
+                  image={adenPosts[0].image_url || 'https://placehold.co/800x600/1A2B49/FFF?text=عدن'}
                   category="هام"
                   categoryColor="bg-accentRed"
                   postId={adenPosts[0].id}
@@ -84,7 +83,7 @@ const Home = () => {
                       key={post.id}
                       variant="sidebar"
                       title={post.title}
-                      image={getOptimizedImage.sidebar(post.image_url) || 'https://placehold.co/150x150/2c3e50/fff'}
+                      image={post.image_url || 'https://placehold.co/150x150/2c3e50/fff'}
                       category={post.category}
                       timeAgo="منذ ساعة"
                       postId={post.id}
@@ -114,7 +113,7 @@ const Home = () => {
                 <NewsCard
                   key={post.id}
                   title={post.title}
-                  image={getOptimizedImage.card(post.image_url) || 'https://placehold.co/400x300/333/fff'}
+                  image={post.image_url || 'https://placehold.co/400x300/333/fff'}
                   category={post.category}
                   categoryColor="text-accentRed"
                   postId={post.id}
@@ -145,7 +144,7 @@ const Home = () => {
                     variant="list"
                     title={post.title}
                     excerpt={post.excerpt}
-                    image={getOptimizedImage.list(post.image_url) || 'https://placehold.co/300x200/555/fff'}
+                    image={post.image_url || 'https://placehold.co/300x200/555/fff'}
                     category={post.category}
                     postId={post.id}
                   />
@@ -198,9 +197,9 @@ const Home = () => {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {intlPosts.length > 0 ? (
-              intlPosts.map(post => (
+                intlPosts.map(post => (
                   <Link key={post.id} to={`/post/${post.id}`} className="relative rounded overflow-hidden group">
-                    <img src={getOptimizedImage.card(post.image_url) || "https://placehold.co/400x300/444/fff"} className="w-full h-40 object-cover brightness-75 group-hover:brightness-100 transition" alt={post.title} loading="lazy" />
+                    <img src={post.image_url || "https://placehold.co/400x300/444/fff"} className="w-full h-40 object-cover brightness-75 group-hover:brightness-100 transition" alt={post.title} />
                     <h3 className="absolute bottom-0 p-3 text-white font-bold text-sm bg-gradient-to-t from-black/80 to-transparent w-full">
                       {post.title}
                     </h3>
@@ -226,13 +225,12 @@ const Home = () => {
             </div>
             <div className="bg-white p-4 rounded-b-lg shadow border border-gray-200 space-y-4">
               {opinionsPosts.length > 0 ? (
-              opinionsPosts.map(post => (
+                opinionsPosts.map(post => (
                   <Link key={post.id} to={`/post/${post.id}`} className="flex items-center gap-3 group">
                     <img 
-                      src={getOptimizedImage.avatar((post as any).authors?.image_url) || "https://placehold.co/100x100/ccc/333?text=كاتب"} 
+                      src={(post as any).authors?.image_url || "https://placehold.co/100x100/ccc/333?text=كاتب"} 
                       className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 flex-shrink-0" 
                       alt={(post as any).authors?.name || post.author || "كاتب"} 
-                      loading="lazy"
                     />
                     <div className="flex-1 min-w-0">
                       <h4 className="font-bold text-southBlue text-sm group-hover:text-accentRed cursor-pointer truncate">
@@ -264,7 +262,7 @@ const Home = () => {
               {techPosts.length > 0 ? (
                 techPosts.map(post => (
                   <Link key={post.id} to={`/post/${post.id}`} className="flex gap-4 bg-white p-3 rounded shadow hover:shadow-md transition">
-                    <img src={getOptimizedImage.cardSmall(post.image_url) || "https://placehold.co/150x150/6b21a8/fff"} className="w-32 h-24 object-cover rounded flex-shrink-0" alt={post.title} loading="lazy" />
+                    <img src={post.image_url || "https://placehold.co/150x150/6b21a8/fff"} className="w-32 h-24 object-cover rounded flex-shrink-0" alt={post.title} />
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-sm text-gray-800 mb-2 hover:text-purple-600 transition line-clamp-2">
                         {post.title}
@@ -292,7 +290,7 @@ const Home = () => {
               {sportsPosts.length > 0 ? (
                 sportsPosts.map(post => (
                   <Link key={post.id} to={`/post/${post.id}`} className="flex gap-4 bg-white p-3 rounded shadow hover:shadow-md transition">
-                    <img src={getOptimizedImage.cardSmall(post.image_url) || "https://placehold.co/150x150/16a34a/fff"} className="w-32 h-24 object-cover rounded flex-shrink-0" alt={post.title} loading="lazy" />
+                    <img src={post.image_url || "https://placehold.co/150x150/16a34a/fff"} className="w-32 h-24 object-cover rounded flex-shrink-0" alt={post.title} />
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-sm text-gray-800 mb-2 hover:text-green-600 transition line-clamp-2">
                         {post.title}
@@ -330,10 +328,9 @@ const Home = () => {
                   <Link to={`/post/${videoPosts[0].id}`} className="block">
                     <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl border border-gray-700 relative group cursor-pointer">
                       <img 
-                        src={getOptimizedImage.hero(videoPosts[0].image_url) || "https://placehold.co/800x450/1a2b49/fff?text=فيديو"} 
+                        src={videoPosts[0].image_url || "https://placehold.co/800x450/1a2b49/fff?text=فيديو"} 
                         className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition" 
                         alt={videoPosts[0].title} 
-                        loading="lazy"
                       />
                       <div className="absolute inset-0 flex items-center justify-center">
                         {videoPosts[0].external_video_url ? (
@@ -353,7 +350,7 @@ const Home = () => {
                   {videoPosts.slice(1, 4).map(post => (
                     <Link key={post.id} to={`/post/${post.id}`} className="flex gap-3 bg-southLight/50 p-2 rounded hover:bg-southLight cursor-pointer transition">
                       <div className="w-24 h-16 bg-black relative flex-shrink-0 rounded overflow-hidden">
-                        <img src={getOptimizedImage.thumbnail(post.image_url) || "https://placehold.co/150x100/000/fff"} className="w-full h-full object-cover opacity-80" alt={post.title} loading="lazy" />
+                        <img src={post.image_url || "https://placehold.co/150x100/000/fff"} className="w-full h-full object-cover opacity-80" alt={post.title} />
                         <i className="fas fa-play text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
                       </div>
                       <div className="text-white text-sm font-semibold flex-1 min-w-0 line-clamp-2">
