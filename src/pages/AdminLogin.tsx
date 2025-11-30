@@ -41,10 +41,10 @@ const AdminLogin = () => {
       if (error) throw error;
 
       if (data.session) {
-        // Check if user has admin role
-        const { data: isAdmin, error: roleError } = await supabase.rpc('is_admin');
+        // Check if user has admin or editor role
+        const { data: canAccess, error: roleError } = await supabase.rpc('can_access_admin');
         
-        if (roleError || !isAdmin) {
+        if (roleError || !canAccess) {
           await supabase.auth.signOut();
           toast.error("ليس لديك صلاحية الوصول للوحة التحكم");
           setIsLoading(false);
