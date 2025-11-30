@@ -97,6 +97,8 @@ const NewsSlider = ({ slides }: { slides: Slide[] }) => {
                 src={slide.image}
                 alt={slide.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                loading={index === 0 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : "auto"}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
               <div className="absolute bottom-0 inset-x-0 p-4 sm:p-8 lg:p-12 text-white">
