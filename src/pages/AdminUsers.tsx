@@ -38,12 +38,19 @@ const AdminUsers = () => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserWithRole | null>(null);
+  const [isEditMyDataOpen, setIsEditMyDataOpen] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     role: "editor" as "admin" | "editor",
+  });
+  
+  // My data form state
+  const [myDataForm, setMyDataForm] = useState({
+    email: "",
+    password: "",
   });
 
   // Check auth and admin role
@@ -182,6 +189,35 @@ const AdminUsers = () => {
     }
   });
 
+  // Update my data mutation
+  const updateMyDataMutation = useMutation({
+    mutationFn: async (data: { email?: string; password?: string }) => {
+      const updates: { email?: string; password?: string } = {};
+      
+      if (data.email && data.email !== user?.email) {
+        updates.email = data.email;
+      }
+      if (data.password) {
+        updates.password = data.password;
+      }
+      
+      if (Object.keys(updates).length === 0) {
+        throw new Error("لم يتم إجراء أي تغييرات");
+      }
+      
+      const { error } = await supabase.auth.updateUser(updates);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("تم تحديث بياناتك بنجاح");
+      setIsEditMyDataOpen(false);
+      setMyDataForm({ email: "", password: "" });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "حدث خطأ في تحديث البيانات");
+    }
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -223,6 +259,28 @@ const AdminUsers = () => {
   const resetForm = () => {
     setFormData({ email: "", password: "", role: "editor" });
     setEditingUser(null);
+  };
+
+  const handleEditMyData = () => {
+    setMyDataForm({
+      email: user?.email || "",
+      password: "",
+    });
+    setIsEditMyDataOpen(true);
+  };
+
+  const handleSaveMyData = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (myDataForm.password && myDataForm.password.length < 6) {
+      toast.error("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+      return;
+    }
+    
+    updateMyDataMutation.mutate({
+      email: myDataForm.email,
+      password: myDataForm.password || undefined,
+    });
   };
 
   const handleLogout = async () => {
@@ -389,25 +447,36 @@ const AdminUsers = () => {
                       }`}>
                         {userItem.role === 'admin' ? 'مدير' : 'محرر'}
                       </span>
-                      {userItem.id !== user?.id && (
-                        <>
+                        {userItem.id === user?.id && userItem.role === 'admin' && (
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(userItem)}
+                            variant="outline"
+                            size="sm"
+                            onClick={handleEditMyData}
+                            className="text-primary"
                           >
-                            <Pencil className="w-4 h-4" />
+                            <Pencil className="w-4 h-4 ml-1" />
+                            تعديل بياناتي
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDelete(userItem.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </>
-                      )}
+                        )}
+                        {userItem.id !== user?.id && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(userItem)}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(userItem.id)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
                     </div>
                   </div>
                 ))}
@@ -415,6 +484,56 @@ const AdminUsers = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Edit My Data Modal */}
+        <Dialog open={isEditMyDataOpen} onOpenChange={setIsEditMyDataOpen}>
+          <DialogContent className="max-w-md" dir="rtl">
+            <DialogHeader>
+              <DialogTitle>تعديل بياناتي</DialogTitle>
+              <DialogDescription>
+                تحديث البريد الإلكتروني وكلمة المرور الخاصة بك
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSaveMyData} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="my-email">البريد الإلكتروني</Label>
+                <Input
+                  id="my-email"
+                  type="email"
+                  value={myDataForm.email}
+                  onChange={(e) => setMyDataForm({ ...myDataForm, email: e.target.value })}
+                  required
+                  dir="ltr"
+                  className="text-right"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="my-password">كلمة المرور الجديدة (اتركها فارغة إذا لم ترد تغييرها)</Label>
+                <Input
+                  id="my-password"
+                  type="password"
+                  value={myDataForm.password}
+                  onChange={(e) => setMyDataForm({ ...myDataForm, password: e.target.value })}
+                  placeholder="••••••"
+                  dir="ltr"
+                  className="text-right"
+                />
+              </div>
+              <div className="flex gap-2 pt-4">
+                <Button 
+                  type="submit" 
+                  className="flex-1 bg-primary hover:bg-primary/90"
+                  disabled={updateMyDataMutation.isPending}
+                >
+                  {updateMyDataMutation.isPending ? "جاري الحفظ..." : "حفظ التعديلات"}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setIsEditMyDataOpen(false)}>
+                  إلغاء
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
