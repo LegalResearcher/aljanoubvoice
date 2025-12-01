@@ -115,27 +115,33 @@ const AdminUsers = () => {
   // Create user mutation
   const createUserMutation = useMutation({
     mutationFn: async (data: { email: string; password: string; role: "admin" | "editor" }) => {
-      // Create user via Supabase Auth admin functions
-      // Note: This requires service role, so we'll use signUp for now
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/admin/login`
+      // Get current session token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("غير مصرح");
+
+      // Call edge function to create user (doesn't affect current session)
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-user`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            email: data.email,
+            password: data.password,
+            role: data.role,
+          }),
         }
-      });
+      );
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("فشل في إنشاء المستخدم");
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "فشل في إنشاء المستخدم");
+      }
 
-      // Assign role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert([{ user_id: authData.user.id, role: data.role }]);
-
-      if (roleError) throw roleError;
-
-      return authData.user;
+      return result.user;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
