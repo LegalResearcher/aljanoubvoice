@@ -307,8 +307,18 @@ const AdminPanel = () => {
       const { wordCount, readingTime } = calculateWordStats(data.content);
       const tags = generateTags(data.title, data.content);
       
+      // Logic: Set status based on user role
+      let finalStatus = data.status;
+      if (!isAdmin) {
+        // Non-admin users (editors, etc.) can only create pending posts
+        if (data.status === 'published' || !editingPost) {
+          finalStatus = 'pending';
+        }
+      }
+      
       const postData = {
         ...data,
+        status: finalStatus,
         word_count: wordCount,
         reading_time: readingTime,
         tags,
@@ -925,6 +935,7 @@ const AdminPanel = () => {
                                   <SelectItem value="draft">مسودة</SelectItem>
                                   <SelectItem value="scheduled">مجدول</SelectItem>
                                   <SelectItem value="published">منشور</SelectItem>
+                                  {isAdmin && <SelectItem value="pending">قيد المراجعة</SelectItem>}
                                   <SelectItem value="hidden">مخفي</SelectItem>
                                 </SelectContent>
                               </Select>
@@ -1248,11 +1259,13 @@ const AdminPanel = () => {
                                   post.status === 'published' ? 'bg-emerald-50 text-emerald-600' :
                                   post.status === 'draft' ? 'bg-gray-100 text-gray-600' :
                                   post.status === 'scheduled' ? 'bg-blue-50 text-blue-600' :
+                                  post.status === 'pending' ? 'bg-yellow-50 text-yellow-600' :
                                   'bg-red-50 text-red-600'
                                 }`}>
                                   {post.status === 'published' ? 'منشور' :
                                    post.status === 'draft' ? 'مسودة' :
-                                   post.status === 'scheduled' ? 'مجدول' : 'مخفي'}
+                                   post.status === 'scheduled' ? 'مجدول' :
+                                   post.status === 'pending' ? 'قيد المراجعة' : 'مخفي'}
                                 </span>
                                 {post.featured && (
                                   <span className="px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-orange-600">
