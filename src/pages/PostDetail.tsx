@@ -237,9 +237,16 @@ const PostDetail = () => {
   // Get absolute URL for sharing
   const currentUrl = window.location.href;
   const siteUrl = window.location.origin;
-  const absoluteImageUrl = post.image_url?.startsWith('http') 
-    ? post.image_url 
-    : `${siteUrl}${post.image_url}`;
+  
+  // Ensure absolute URL with HTTPS for social media sharing
+  let absoluteImageUrl = '';
+  if (post.image_url) {
+    if (post.image_url.startsWith('http')) {
+      absoluteImageUrl = post.image_url.replace('http://', 'https://');
+    } else {
+      absoluteImageUrl = `${siteUrl}${post.image_url.startsWith('/') ? '' : '/'}${post.image_url}`;
+    }
+  }
 
   return (
     <div className="min-h-screen bg-southGray">
@@ -257,11 +264,16 @@ const PostDetail = () => {
         <meta property="og:url" content={currentUrl} />
         <meta property="og:title" content={post.meta_title || post.title} />
         <meta property="og:description" content={post.meta_description || post.excerpt || post.title} />
-        {absoluteImageUrl && <meta property="og:image" content={absoluteImageUrl} />}
-        {absoluteImageUrl && <meta property="og:image:secure_url" content={absoluteImageUrl} />}
-        {absoluteImageUrl && <meta property="og:image:type" content="image/jpeg" />}
-        {absoluteImageUrl && <meta property="og:image:width" content="1200" />}
-        {absoluteImageUrl && <meta property="og:image:height" content="630" />}
+        {absoluteImageUrl && (
+          <>
+            <meta property="og:image" content={absoluteImageUrl} />
+            <meta property="og:image:secure_url" content={absoluteImageUrl} />
+            <meta property="og:image:type" content="image/jpeg" />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            <meta property="og:image:alt" content={post.title} />
+          </>
+        )}
         <meta property="og:site_name" content="الجنوب فويس | South Voice" />
         <meta property="og:locale" content="ar_AR" />
         {post.created_at && <meta property="article:published_time" content={post.created_at} />}
@@ -270,6 +282,7 @@ const PostDetail = () => {
         {post.tags && post.tags.map((tag: string) => (
           <meta key={tag} property="article:tag" content={tag} />
         ))}
+        {author && <meta property="article:author" content={author.name} />}
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
@@ -277,6 +290,7 @@ const PostDetail = () => {
         <meta name="twitter:title" content={post.meta_title || post.title} />
         <meta name="twitter:description" content={post.meta_description || post.excerpt || post.title} />
         {absoluteImageUrl && <meta name="twitter:image" content={absoluteImageUrl} />}
+        {absoluteImageUrl && <meta name="twitter:image:alt" content={post.title} />}
         <meta name="twitter:site" content="@aljanoubvoice" />
         <meta name="twitter:creator" content="@aljanoubvoice" />
         
