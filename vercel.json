@@ -1,5 +1,16 @@
 {
   "rewrites": [
+    { 
+      "source": "/post/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(.*bot.*|.*facebook.*|.*twitter.*|.*whatsapp.*|.*telegram.*|.*slack.*)"
+        }
+      ],
+      "destination": "https://qajnvzxmijetcldztkwl.supabase.co/functions/v1/og-proxy?id=:id"
+    },
     { "source": "/(.*)", "destination": "/" }
   ]
 }
