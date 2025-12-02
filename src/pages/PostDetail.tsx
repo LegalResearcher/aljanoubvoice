@@ -14,6 +14,11 @@ import RelatedNews from "@/components/RelatedNews";
 const PostDetail = () => {
   const { id } = useParams();
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
   const { data: post, isLoading } = useQuery({
     queryKey: ['post', id],
     queryFn: async () => {
