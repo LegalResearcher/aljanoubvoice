@@ -13,5 +13,12 @@
     },
     { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/((?!api/).*)", "destination": "/" }
+  ],
+
+  "crons": [
+    {
+      "path": "/api/publish-rss",
+      "schedule": "*/3 * * * *"
+    }
   ]
 }
