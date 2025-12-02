@@ -1,0 +1,13 @@
+[[redirects]]
+  from = "/post/:id"
+  to = "https://qajnvzxmijetcldztkwl.supabase.co/functions/v1/og-proxy?id=:id"
+  status = 200
+  force = true
+
+  [redirects.conditions]
+    User-Agent = ["*bot*", "*facebook*", "*twitter*", "*whatsapp*", "*telegram*", "*slack*", "*facebookexternalhit*"]
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
