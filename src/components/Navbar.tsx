@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, Search, X } from "lucide-react";
+import { Menu, Search, X, Rss } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -76,6 +76,17 @@ const Navbar = () => {
                 </Link>
               </li>
             ))}
+            {/* RSS Feeds Link - Mobile Only */}
+            <li className="border-t border-gray-700 pt-3 mt-2">
+              <Link
+                to="/rss-feeds"
+                className="flex items-center gap-2 text-orange-400 hover:text-orange-300"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Rss className="w-4 h-4" />
+                خلاصات RSS
+              </Link>
+            </li>
           </ul>
         </div>
       )}

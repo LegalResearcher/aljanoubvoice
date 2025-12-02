@@ -52,12 +52,14 @@ const Footer = () => {
             >
               <i className="fab fa-whatsapp"></i>
             </a>
-            <Link 
-              to="/feed"
+            <a 
+              href="https://aljanoubvoice.vercel.app/api/rss"
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-orange-500 hover:text-white transition"
             >
               <Rss className="w-4 h-4" />
-            </Link>
+            </a>
           </div>
         </div>
 
