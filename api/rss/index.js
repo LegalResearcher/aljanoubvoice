@@ -1,12 +1,20 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
 export default async function handler(req, res) {
   try {
+    // Check environment variables
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing environment variables:', { 
+        hasUrl: !!supabaseUrl, 
+        hasKey: !!supabaseKey 
+      });
+      return res.status(500).send('Server configuration error: Missing Supabase credentials');
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
     const { data: posts, error } = await supabase
       .from('posts')
       .select('id, title, excerpt, created_at, category')

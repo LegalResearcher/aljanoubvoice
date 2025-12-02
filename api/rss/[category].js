@@ -1,9 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
 const categoryNames = {
   aden: 'أخبار عدن',
@@ -23,6 +21,16 @@ const categoryNames = {
 
 export default async function handler(req, res) {
   try {
+    // Check environment variables
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing environment variables:', { 
+        hasUrl: !!supabaseUrl, 
+        hasKey: !!supabaseKey 
+      });
+      return res.status(500).send('Server configuration error: Missing Supabase credentials');
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
     const { category } = req.query;
 
     if (!category || !categoryNames[category]) {
