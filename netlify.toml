@@ -1,9 +1,10 @@
-[[redirects]]
-  from = "/post/:id"
-  to = "https://qajnvzxmijetcldztkwl.supabase.co/functions/v1/og-proxy?id=:id"
-  status = 200
-  force = true
-  conditions = {User-Agent = ["facebookexternalhit/*", "Facebot", "facebookcatalog/*", "TelegramBot*", "*bot*", "*Bot*", "*facebook*", "*Facebook*", "*twitter*", "*Twitter*", "*whatsapp*", "*WhatsApp*", "*telegram*", "*Telegram*", "*slack*", "*Slack*", "*Twitterbot*", "*LinkedInBot*", "*Slackbot*", "*WhatsApp*", "*Discordbot*", "*SkypeUriPreview*", "*vkShare*", "*Pinterest*", "*reddit*", "*tumblr*"]}
+[[edge_functions]]
+  function = "og-tags"
+  path = "/post/*"
+
+[[edge_functions]]
+  function = "og-tags"
+  path = "/"
 
 [[redirects]]
   from = "/*"
