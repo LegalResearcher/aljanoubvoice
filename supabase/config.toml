@@ -1,1 +1,4 @@
 project_id = "qajnvzxmijetcldztkwl"
+
+[functions.og-proxy]
+verify_jwt = false
