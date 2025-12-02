@@ -169,12 +169,19 @@ const Home = () => {
               <div className="space-y-4">
                 {pressPosts.length > 0 ? (
                   pressPosts.map(post => (
-                    <div key={post.id} className="group border-b border-gray-100 pb-3 last:border-b-0">
-                      <span className="text-xs text-accentRed font-bold block mb-1">{post.source || 'مصدر خارجي'}</span>
-                      <Link to={`/post/${post.id}`} className="font-bold text-sm text-gray-800 leading-6 group-hover:text-southBlue block">
-                        {post.title}
-                      </Link>
-                    </div>
+                    <Link key={post.id} to={`/post/${post.id}`} className="group flex gap-3 border-b border-gray-100 pb-3 last:border-b-0">
+                      <img 
+                        src={post.image_url || "https://placehold.co/100x80/444/fff"} 
+                        alt={post.title}
+                        className="w-24 h-20 object-cover rounded flex-shrink-0 group-hover:opacity-90 transition"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xs text-accentRed font-bold block mb-1">{post.source || 'مصدر خارجي'}</span>
+                        <h3 className="font-bold text-sm text-gray-800 leading-6 group-hover:text-southBlue line-clamp-2">
+                          {post.title}
+                        </h3>
+                      </div>
+                    </Link>
                   ))
                 ) : (
                   <div className="text-center py-4 text-gray-500 text-sm">
