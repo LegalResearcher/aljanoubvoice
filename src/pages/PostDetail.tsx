@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { Facebook, Mail, Copy, MessageCircle, Clock, Eye } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -233,8 +234,56 @@ const PostDetail = () => {
 
   const author = (post as any).authors;
 
+  // Get absolute URL for sharing
+  const currentUrl = window.location.href;
+  const siteUrl = window.location.origin;
+  const absoluteImageUrl = post.image_url?.startsWith('http') 
+    ? post.image_url 
+    : `${siteUrl}${post.image_url}`;
+
   return (
     <div className="min-h-screen bg-southGray">
+      <Helmet>
+        {/* Primary Meta Tags */}
+        <title>{post.meta_title || post.title} | الجنوب فويس</title>
+        <meta name="title" content={post.meta_title || post.title} />
+        <meta name="description" content={post.meta_description || post.excerpt || post.title} />
+        {post.keywords && post.keywords.length > 0 && (
+          <meta name="keywords" content={post.keywords.join(', ')} />
+        )}
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={currentUrl} />
+        <meta property="og:title" content={post.meta_title || post.title} />
+        <meta property="og:description" content={post.meta_description || post.excerpt || post.title} />
+        {absoluteImageUrl && <meta property="og:image" content={absoluteImageUrl} />}
+        {absoluteImageUrl && <meta property="og:image:secure_url" content={absoluteImageUrl} />}
+        {absoluteImageUrl && <meta property="og:image:type" content="image/jpeg" />}
+        {absoluteImageUrl && <meta property="og:image:width" content="1200" />}
+        {absoluteImageUrl && <meta property="og:image:height" content="630" />}
+        <meta property="og:site_name" content="الجنوب فويس | South Voice" />
+        <meta property="og:locale" content="ar_AR" />
+        {post.created_at && <meta property="article:published_time" content={post.created_at} />}
+        {post.updated_at && <meta property="article:modified_time" content={post.updated_at} />}
+        {post.category && <meta property="article:section" content={post.category} />}
+        {post.tags && post.tags.map((tag: string) => (
+          <meta key={tag} property="article:tag" content={tag} />
+        ))}
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content={currentUrl} />
+        <meta name="twitter:title" content={post.meta_title || post.title} />
+        <meta name="twitter:description" content={post.meta_description || post.excerpt || post.title} />
+        {absoluteImageUrl && <meta name="twitter:image" content={absoluteImageUrl} />}
+        <meta name="twitter:site" content="@aljanoubvoice" />
+        <meta name="twitter:creator" content="@aljanoubvoice" />
+        
+        {/* Additional SEO */}
+        <link rel="canonical" href={currentUrl} />
+      </Helmet>
+
       <Header />
       <Navbar />
       <Ticker />
