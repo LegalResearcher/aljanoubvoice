@@ -39,19 +39,26 @@ Deno.serve(async (req) => {
     const siteUrl = `${url.protocol}//${url.host}`
     const postUrl = `${siteUrl}/post/${postId}`
 
-    // Prepare absolute image URL
+    // Prepare absolute image URL - force HTTPS
     let absoluteImageUrl = ''
     if (post.image_url) {
-      if (post.image_url.startsWith('http')) {
+      if (post.image_url.startsWith('http://') || post.image_url.startsWith('https://')) {
         absoluteImageUrl = post.image_url.replace('http://', 'https://')
+      } else if (post.image_url.includes('supabase.co')) {
+        absoluteImageUrl = post.image_url.startsWith('https://') ? post.image_url : `https://${post.image_url}`
       } else {
-        absoluteImageUrl = `${siteUrl}${post.image_url.startsWith('/') ? '' : '/'}${post.image_url}`
+        // Relative URL - make absolute with HTTPS
+        absoluteImageUrl = `${siteUrl.replace('http://', 'https://')}${post.image_url.startsWith('/') ? '' : '/'}${post.image_url}`
       }
     }
 
     const title = post.meta_title || post.title
-    const description = post.meta_description || post.excerpt || post.title
+    const description = post.meta_description || post.excerpt || post.title.substring(0, 160)
     const author = post.authors
+    
+    console.log('Serving OG tags for post:', postId)
+    console.log('Image URL:', absoluteImageUrl)
+    console.log('Title:', title)
 
     // Generate HTML with Open Graph tags
     const html = `<!doctype html>
