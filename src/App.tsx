@@ -8,6 +8,7 @@ import PostDetail from "./pages/PostDetail";
 import AdminLogin from "./pages/AdminLogin";
 import AdminPanel from "./pages/AdminPanel";
 import AdminUsers from "./pages/AdminUsers";
+import RSSFeeds from "./pages/RSSFeeds";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
         <Route path="/sports" element={<CategoryPage category="رياضة" title="رياضة" />} />
         <Route path="/misc" element={<CategoryPage category="منوعات" title="منوعات" />} />
         <Route path="/video" element={<CategoryPage category="فيديو" title="فيديو الجنوب فويس" />} />
+        <Route path="/rss-feeds" element={<RSSFeeds />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/admin/users" element={<AdminUsers />} />
