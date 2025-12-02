@@ -3,7 +3,7 @@
   to = "https://qajnvzxmijetcldztkwl.supabase.co/functions/v1/og-proxy?id=:id"
   status = 200
   force = true
-  conditions = {User-Agent = ["*bot*", "*Bot*", "*facebook*", "*Facebook*", "*twitter*", "*Twitter*", "*whatsapp*", "*WhatsApp*", "*telegram*", "*Telegram*", "*slack*", "*Slack*", "*facebookexternalhit*", "*Twitterbot*", "*LinkedInBot*", "*Slackbot*", "*TelegramBot*", "*WhatsApp*", "*Discordbot*", "*SkypeUriPreview*", "*vkShare*", "*Pinterest*", "*reddit*", "*tumblr*"]}
+  conditions = {User-Agent = ["facebookexternalhit/*", "Facebot", "facebookcatalog/*", "TelegramBot*", "*bot*", "*Bot*", "*facebook*", "*Facebook*", "*twitter*", "*Twitter*", "*whatsapp*", "*WhatsApp*", "*telegram*", "*Telegram*", "*slack*", "*Slack*", "*Twitterbot*", "*LinkedInBot*", "*Slackbot*", "*WhatsApp*", "*Discordbot*", "*SkypeUriPreview*", "*vkShare*", "*Pinterest*", "*reddit*", "*tumblr*"]}
 
 [[redirects]]
   from = "/*"
