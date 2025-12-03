@@ -1,5 +1,3 @@
-const Parser = require("rss-parser");
-
 module.exports = async function handler(req, res) {
   try {
     const botToken = process.env.TG_BOT_TOKEN;
@@ -11,20 +9,45 @@ module.exports = async function handler(req, res) {
 
     const FEED_URL = "https://aljanoubvoice.vercel.app/api/rss";
 
-    const parser = new Parser({
-      customFields: {
-        item: ["image", "media:content", "enclosure"]
-      }
-    });
+    // Fetch RSS feed using native fetch
+    const response = await fetch(FEED_URL);
+    const xmlText = await response.text();
 
-    const feed = await parser.parseURL(FEED_URL);
+    // Simple XML parsing for RSS items
+    const items = [];
+    const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+    let match;
 
-    if (!feed.items || feed.items.length === 0) {
+    while ((match = itemRegex.exec(xmlText)) !== null) {
+      const itemXml = match[1];
+      
+      const getTag = (tag) => {
+        const regex = new RegExp(`<${tag}><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>|<${tag}>([\\s\\S]*?)<\\/${tag}>`);
+        const m = itemXml.match(regex);
+        return m ? (m[1] || m[2] || '').trim() : '';
+      };
+
+      const getEnclosure = () => {
+        const encMatch = itemXml.match(/<enclosure[^>]*url=["']([^"']+)["'][^>]*>/);
+        return encMatch ? encMatch[1] : null;
+      };
+
+      items.push({
+        title: getTag('title'),
+        link: getTag('link'),
+        guid: getTag('guid') || getTag('link'),
+        description: getTag('description'),
+        enclosure: getEnclosure()
+      });
+    }
+
+    if (items.length === 0) {
       return res.status(200).json({ ok: false, message: "No items found" });
     }
 
-    const latest = feed.items[0];
+    const latest = items[0];
 
+    // Prevent duplicate publishing
     const cacheKey = "LATEST_PUBLISHED_ID";
     const lastPublishedId = global[cacheKey];
 
@@ -34,14 +57,7 @@ module.exports = async function handler(req, res) {
 
     global[cacheKey] = latest.guid;
 
-    let imageUrl = null;
-
-    if (latest.enclosure && latest.enclosure.url) {
-      imageUrl = latest.enclosure.url;
-    } else if (latest["media:content"] && latest["media:content"].$ && latest["media:content"].$.url) {
-      imageUrl = latest["media:content"].$.url;
-    }
-
+    const imageUrl = latest.enclosure;
     const messageText = `📰 *${latest.title}*\n\n🔗 ${latest.link}`;
 
     if (imageUrl) {
