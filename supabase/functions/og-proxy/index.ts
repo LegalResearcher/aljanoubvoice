@@ -103,6 +103,10 @@ Deno.serve(async (req) => {
     <meta name="twitter:site" content="@aljanoubvoice" />
     <meta name="twitter:creator" content="@aljanoubvoice" />
     
+    <!-- Telegram specific -->
+    <meta property="telegram:channel" content="@aljanoubvoice" />
+    ${absoluteImageUrl ? `<link rel="image_src" href="${absoluteImageUrl}" />` : ''}
+    
     <!-- Canonical URL -->
     <link rel="canonical" href="${postUrl}" />
     
