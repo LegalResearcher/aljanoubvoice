@@ -1,10 +1,6 @@
-import Parser from "rss-parser";
+const Parser = require("rss-parser");
 
-export const config = {
-  runtime: "nodejs"
-};
-
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   try {
     const botToken = process.env.TG_BOT_TOKEN;
     const chatId = process.env.TG_CHAT_ID;
@@ -40,9 +36,9 @@ export default async function handler(req, res) {
 
     let imageUrl = null;
 
-    if (latest.enclosure?.url) {
+    if (latest.enclosure && latest.enclosure.url) {
       imageUrl = latest.enclosure.url;
-    } else if (latest["media:content"]?.$?.url) {
+    } else if (latest["media:content"] && latest["media:content"].$ && latest["media:content"].$.url) {
       imageUrl = latest["media:content"].$.url;
     }
 
@@ -77,4 +73,4 @@ export default async function handler(req, res) {
     console.error("RSS Publish Error:", err);
     return res.status(500).json({ error: err.message });
   }
-}
+};
