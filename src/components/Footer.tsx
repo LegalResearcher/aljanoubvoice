@@ -45,7 +45,7 @@ const Footer = () => {
               <i className="fab fa-telegram-plane"></i>
             </a>
             <a 
-              href="https://wa.me/" 
+              href="https://whatsapp.com/channel/0029VbCOaM82kNFhIkogtQ0r" 
               target="_blank" 
               rel="noopener noreferrer"
               className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-green-500 hover:text-white transition"
