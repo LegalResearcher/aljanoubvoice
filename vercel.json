@@ -6,7 +6,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": "(facebookexternalhit|Facebot|facebookcatalog|FacebookBot|TelegramBot|.*bot.*|.*Bot.*|.*facebook.*|.*Facebook.*|.*twitter.*|.*Twitter.*|.*whatsapp.*|.*WhatsApp.*|.*telegram.*|.*Telegram.*|.*slack.*|.*Slack.*)"
+          "value": "(TelegramBot|facebookexternalhit|Facebot|facebookcatalog|FacebookBot|Twitterbot|LinkedInBot|WhatsApp|Slackbot|Discordbot|vkShare|Pinterest|redditbot|.*[Bb]ot.*)"
         }
       ],
       "destination": "https://qajnvzxmijetcldztkwl.supabase.co/functions/v1/og-proxy?id=:id"
