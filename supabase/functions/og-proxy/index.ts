@@ -35,8 +35,8 @@ Deno.serve(async (req) => {
       return new Response('Post not found', { status: 404 })
     }
 
-    // Get site URL from request
-    const siteUrl = `${url.protocol}//${url.host}`
+    // Use the actual site URL, not the Edge Function URL
+    const siteUrl = 'https://aljanoubvoice.vercel.app'
     const postUrl = `${siteUrl}/post/${postId}`
 
     // Prepare absolute image URL - force HTTPS
