@@ -54,7 +54,6 @@ const RSSFeeds = () => {
       <Navbar />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Page Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-3 bg-southBlue text-white px-6 py-3 rounded-full mb-4">
             <Radio className="w-6 h-6" />
@@ -65,7 +64,6 @@ const RSSFeeds = () => {
           </p>
         </div>
 
-        {/* RSS Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {rssFeeds.map((feed) => (
             <Card 
@@ -107,15 +105,14 @@ const RSSFeeds = () => {
           ))}
         </div>
 
-        {/* Info Section */}
         <div className="mt-10 bg-white rounded-xl p-6 border border-gray-200">
           <h2 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
             <Rss className="w-5 h-5 text-orange-500" />
             ما هي خلاصات RSS؟
           </h2>
           <p className="text-gray-600 text-sm leading-relaxed">
-            RSS (Really Simple Syndication) هي تقنية تتيح لك متابعة آخر الأخبار من مواقعك المفضلة دون الحاجة لزيارتها يدوياً. 
-            يمكنك استخدام تطبيقات قراءة RSS مثل Feedly أو Inoreader للاشتراك في خلاصاتنا والحصول على التحديثات فور نشرها.
+            RSS هي تقنية تتيح لك متابعة آخر الأخبار دون زيارة الموقع يدوياً.
+            استخدم تطبيقات مثل Feedly أو Inoreader للحصول على التحديثات فور نشرها.
           </p>
         </div>
       </main>
