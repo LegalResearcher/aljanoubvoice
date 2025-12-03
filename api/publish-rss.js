@@ -1,5 +1,9 @@
 import Parser from "rss-parser";
 
+export const config = {
+  runtime: "nodejs"
+};
+
 export default async function handler(req, res) {
   try {
     const botToken = process.env.TG_BOT_TOKEN;
@@ -25,7 +29,6 @@ export default async function handler(req, res) {
 
     const latest = feed.items[0];
 
-    // --- منع تكرار النشر ---
     const cacheKey = "LATEST_PUBLISHED_ID";
     const lastPublishedId = global[cacheKey];
 
@@ -35,7 +38,6 @@ export default async function handler(req, res) {
 
     global[cacheKey] = latest.guid;
 
-    // --- تحديد صورة الخبر ---
     let imageUrl = null;
 
     if (latest.enclosure?.url) {
@@ -44,10 +46,8 @@ export default async function handler(req, res) {
       imageUrl = latest["media:content"].$.url;
     }
 
-    // --- تجهيز الرسالة ---
     const messageText = `📰 *${latest.title}*\n\n🔗 ${latest.link}`;
 
-    // --- إرسال الخبر (مع صورة إن وجدت) ---
     if (imageUrl) {
       await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
         method: "POST",
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, published: latest.title });
 
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Server error" });
+    console.error("RSS Publish Error:", err);
+    return res.status(500).json({ error: err.message });
   }
 }
