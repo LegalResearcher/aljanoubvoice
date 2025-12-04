@@ -39,7 +39,7 @@ const Footer = () => {
               <i className="fab fa-youtube"></i>
             </a>
             <a 
-              href="https://t.me/aljanoubvoice" 
+              href="https://t.me/aljnoubvoice" 
               target="_blank" 
               rel="noopener noreferrer"
               className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-blue-500 hover:text-white transition"
@@ -47,7 +47,7 @@ const Footer = () => {
               <i className="fab fa-telegram-plane"></i>
             </a>
             <a 
-              href="https://whatsapp.com/channel/0029VbCOaM82kNFhIkogtQ0r" 
+              href="https://whatsapp.com/channel/0029Vb35SXf0VycNope3QR0l" 
               target="_blank" 
               rel="noopener noreferrer"
               className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-green-500 hover:text-white transition"
@@ -55,7 +55,7 @@ const Footer = () => {
               <i className="fab fa-whatsapp"></i>
             </a>
             <a 
-              href="https://aljanoubvoice.vercel.app/api/rss"
+              href="https://aljnoubvoice.com/api/rss"
               target="_blank"
               rel="noopener noreferrer"
               className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center hover:bg-orange-500 hover:text-white transition"
@@ -114,4 +114,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default Footer;t Footer;
