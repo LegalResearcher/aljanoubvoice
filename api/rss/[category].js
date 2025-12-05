@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+﻿import { createClient } from '@supabase/supabase-js';
 
 const categoryNames = {
   aden: 'أخبار عدن',
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
   const xmlItems = posts
     .map(post => `<item>
       <title><![CDATA[${post.title}]]></title>
-      <link>https://aljanoubvoice.vercel.app/post/${post.id}</link>
+      <link>https://aljnoubvoice.com/post/${post.id}</link>
       <description><![CDATA[${post.excerpt || post.content?.substring(0, 500) || post.title}]]></description>
       <pubDate>${new Date(post.created_at).toUTCString()}</pubDate>
     </item>`)
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
 <rss version="2.0">
   <channel>
     <title>الجنوب فويس - ${arabicCategory}</title>
-    <link>https://aljanoubvoice.vercel.app</link>
+    <link>https://aljnoubvoice.com</link>
     <description>آخر أخبار ${arabicCategory} من الجنوب فويس</description>
     <language>ar</language>
     ${xmlItems}
