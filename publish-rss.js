@@ -1,4 +1,4 @@
-import Parser from "rss-parser";
+﻿import Parser from "rss-parser";
 
 export default async function handler(req, res) {
   try {
@@ -9,7 +9,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Missing Telegram credentials" });
     }
 
-    const FEED_URL = "https://aljanoubvoice.vercel.app/api/rss";
+    const FEED_URL = "https://aljnoubvoice.com/api/rss";
 
     const parser = new Parser({
       customFields: {
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
     const latest = feed.items[0];
 
-    // --- منع تكرار النشر ---
+    // Prevent duplicate publishing
     const cacheKey = "LATEST_PUBLISHED_ID";
     const lastPublishedId = global[cacheKey];
 
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
 
     global[cacheKey] = latest.guid;
 
-    // --- تحديد صورة الخبر ---
+    // Extract image
     let imageUrl = null;
 
     if (latest.enclosure?.url) {
@@ -44,10 +44,9 @@ export default async function handler(req, res) {
       imageUrl = latest["media:content"].$.url;
     }
 
-    // --- تجهيز الرسالة ---
     const messageText = `📰 *${latest.title}*\n\n🔗 ${latest.link}`;
 
-    // --- إرسال الخبر (مع صورة إن وجدت) ---
+    // Send Telegram message
     if (imageUrl) {
       await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
         method: "POST",
