@@ -1,4 +1,4 @@
-module.exports = async function handler(req, res) {
+﻿module.exports = async function handler(req, res) {
   try {
     const botToken = process.env.TG_BOT_TOKEN;
     const chatId = process.env.TG_CHAT_ID;
@@ -7,20 +7,24 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: "Missing Telegram credentials" });
     }
 
-    const FEED_URL = "https://aljanoubvoice.vercel.app/api/rss";
+    const FEED_URL = (process.env.SITE_URL || 'https://aljnoubvoice.com') + "/api/rss";
 
-    // Fetch RSS feed using native fetch
-    const response = await fetch(FEED_URL);
+    // Fetch RSS feed
+    const response = await fetch(FEED_URL, { method: 'GET' });
+    if (!response.ok) {
+      console.error('Failed to fetch RSS:', response.status, await response.text());
+      return res.status(500).json({ error: 'Failed to fetch RSS feed' });
+    }
+
     const xmlText = await response.text();
 
-    // Simple XML parsing for RSS items
+    // Parse items
     const items = [];
     const itemRegex = /<item>([\s\S]*?)<\/item>/g;
     let match;
-
     while ((match = itemRegex.exec(xmlText)) !== null) {
       const itemXml = match[1];
-      
+
       const getTag = (tag) => {
         const regex = new RegExp(`<${tag}><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>|<${tag}>([\\s\\S]*?)<\\/${tag}>`);
         const m = itemXml.match(regex);
@@ -47,7 +51,7 @@ module.exports = async function handler(req, res) {
 
     const latest = items[0];
 
-    // Prevent duplicate publishing
+    // Simple in-memory duplicate prevention (may not persist in serverless)
     const cacheKey = "LATEST_PUBLISHED_ID";
     const lastPublishedId = global[cacheKey];
 
@@ -60,8 +64,9 @@ module.exports = async function handler(req, res) {
     const imageUrl = latest.enclosure;
     const messageText = `📰 *${latest.title}*\n\n🔗 ${latest.link}`;
 
+    // Send to Telegram
     if (imageUrl) {
-      await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+      const sendPhotoRes = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -71,8 +76,11 @@ module.exports = async function handler(req, res) {
           parse_mode: "Markdown"
         })
       });
+      if (!sendPhotoRes.ok) {
+        console.error('Telegram sendPhoto failed:', await sendPhotoRes.text());
+      }
     } else {
-      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      const sendMsgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -81,12 +89,15 @@ module.exports = async function handler(req, res) {
           parse_mode: "Markdown"
         })
       });
+      if (!sendMsgRes.ok) {
+        console.error('Telegram sendMessage failed:', await sendMsgRes.text());
+      }
     }
 
     return res.status(200).json({ ok: true, published: latest.title });
 
   } catch (err) {
     console.error("RSS Publish Error:", err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message || String(err) });
   }
 };
