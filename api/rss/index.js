@@ -1,67 +1,73 @@
-import { createClient } from '@supabase/supabase-js';
+﻿import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const categoryNames = {
+  aden: 'أخبار عدن',
+  local: 'أخبار محلية',
+  reports: 'أخبار وتقارير',
+  press: 'اليمن في الصحافة',
+  intl: 'شؤون دولية',
+  opinions: 'آراء واتجاهات',
+  tech: 'علوم وتكنولوجيا',
+  sports: 'رياضة',
+  video: 'فيديو الجنوب فويس',
+  economy: 'اقتصاد',
+  culture: 'ثقافة وفن',
+  health: 'صحة',
+  misc: 'منوعات'
+};
 
 export default async function handler(req, res) {
-  try {
-    // Check environment variables
-    if (!supabaseUrl || !supabaseKey) {
-      console.error('Missing environment variables:', { 
-        hasUrl: !!supabaseUrl, 
-        hasKey: !!supabaseKey 
-      });
-      return res.status(500).send('Server configuration error: Missing Supabase credentials');
-    }
+  const { category } = req.query;
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    const { data: posts, error } = await supabase
-      .from('posts')
-      .select('id, title, excerpt, created_at, category')
-      .eq('status', 'published')
-      .order('created_at', { ascending: false })
-      .limit(50);
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return res.status(500).send('Error fetching posts');
-    }
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    return res.status(500).send("Missing Supabase credentials");
+  }
 
-    const siteUrl = 'https://aljanoubvoice.vercel.app';
-    const feedTitle = 'الجنوب فويس - آخر الأخبار';
-    const feedDescription = 'آخر الأخبار والتقارير من الجنوب فويس';
+  if (!category || !categoryNames[category]) {
+    return res.status(404).send("Category not found");
+  }
 
-    const rssItems = posts.map(post => {
-      const pubDate = new Date(post.created_at).toUTCString();
-      const description = post.excerpt || post.title;
-      return `
-    <item>
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  const arabicCategory = categoryNames[category];
+
+  const { data: posts, error } = await supabase
+    .from("posts")
+    .select("id, title, content, excerpt, created_at")
+    .eq("category", arabicCategory)
+    .eq("status", "published")
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (error) {
+    return res.status(500).send("Error fetching data");
+  }
+
+  // 🔥 استخدم دومين موقعك الجديد
+  const SITE_URL = "https://aljnoubvoice.com";
+
+  const xmlItems = posts
+    .map(post => `<item>
       <title><![CDATA[${post.title}]]></title>
-      <link>${siteUrl}/post/${post.id}</link>
-      <description><![CDATA[${description}]]></description>
-      <pubDate>${pubDate}</pubDate>
-      <guid isPermaLink="true">${siteUrl}/post/${post.id}</guid>
-    </item>`;
-    }).join('');
+      <link>${SITE_URL}/post/${post.id}</link>
+      <description><![CDATA[${post.excerpt || post.content?.substring(0, 500) || post.title}]]></description>
+      <pubDate>${new Date(post.created_at).toUTCString()}</pubDate>
+    </item>`)
+    .join("");
 
-    const rss = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
   <channel>
-    <title>${feedTitle}</title>
-    <link>${siteUrl}</link>
-    <description>${feedDescription}</description>
+    <title>الجنوب فويس - ${arabicCategory}</title>
+    <link>${SITE_URL}</link>
+    <description>آخر أخبار ${arabicCategory} من الجنوب فويس</description>
     <language>ar</language>
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <atom:link href="${siteUrl}/api/rss" rel="self" type="application/rss+xml"/>
-    ${rssItems}
+    ${xmlItems}
   </channel>
 </rss>`;
 
-    res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8');
-    res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate');
-    return res.status(200).send(rss);
-  } catch (err) {
-    console.error('RSS generation error:', err);
-    return res.status(500).send('Internal Server Error');
-  }
+  res.setHeader("Content-Type", "text/xml");
+  res.status(200).send(xml);
 }
