@@ -1,7 +1,18 @@
-{
-  "rewrites": [
-    { 
-      "source": "/post/:id",
+﻿{
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+
+  "routes": [
+    {
+      "src": "/post/:id",
       "has": [
         {
           "type": "header",
@@ -9,10 +20,10 @@
           "value": "(TelegramBot|facebookexternalhit|Facebot|facebookcatalog|FacebookBot|Twitterbot|LinkedInBot|WhatsApp|Slackbot|Discordbot|vkShare|Pinterest|redditbot|.*[Bb]ot.*)"
         }
       ],
-      "destination": "https://qajnvzxmijetcldztkwl.supabase.co/functions/v1/og-proxy?id=:id"
+      "dest": "https://qajnvzxmijetcldztkwl.supabase.co/functions/v1/og-proxy?id=:id"
     },
-    { "source": "/api/:path*", "destination": "/api/:path*" },
-    { "source": "/((?!api/).*)", "destination": "/" }
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ],
 
   "crons": [
