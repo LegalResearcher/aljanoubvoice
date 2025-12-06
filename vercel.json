@@ -1,16 +1,10 @@
 ﻿{
   "version": 2,
-
-  "builds": [
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build"
-    }
-  ],
-
-  "routes": [
-    {
-      "src": "/post/(?<id>.*)",
+      "source": "/post/:id",
       "has": [
         {
           "type": "header",
@@ -18,18 +12,17 @@
           "value": "(TelegramBot|facebookexternalhit|Facebot|facebookcatalog|FacebookBot|Twitterbot|LinkedInBot|WhatsApp|Slackbot|Discordbot|vkShare|Pinterest|redditbot|.*[Bb]ot.*)"
         }
       ],
-      "dest": "https://qajnvzxmijetcldztkwl.supabase.co/functions/v1/og-proxy?id=$id"
+      "destination": "https://qajnvzxmijetcldztkwl.supabase.co/functions/v1/og-proxy?id=:id"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/"
     }
   ],
-
   "crons": [
     {
       "path": "/api/publish-rss",
