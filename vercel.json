@@ -1,9 +1,6 @@
-﻿{
-  "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
+{
   "rewrites": [
-    {
+    { 
       "source": "/post/:id",
       "has": [
         {
@@ -14,15 +11,10 @@
       ],
       "destination": "https://qajnvzxmijetcldztkwl.supabase.co/functions/v1/og-proxy?id=:id"
     },
-    {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
+    { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/((?!api/).*)", "destination": "/" }
   ],
+
   "crons": [
     {
       "path": "/api/publish-rss",
